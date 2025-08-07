@@ -53,19 +53,19 @@ func init() {
 			Default:  0,
 			Advanced: true,
 		}, {
-			Name:     "chunk_size",
-			Help:     `Upload chunk size. Must be a power of 2 >= 256k.
+			Name: "chunk_size",
+			Help: `Upload chunk size. Must be a power of 2 >= 256k.
 
 Any files larger than this will be uploaded in chunks of this size.
 The chunk size must be a power of 2 and at least 256k. Making it larger
 will reduce the number of API calls needed to upload a file, but will use
 more memory. The default is usually a good choice.
 `,
-			Default:  fs.SizeSuffix(50 * 1024 * 1024), // 50MB default chunk size  
+			Default:  fs.SizeSuffix(50 * 1024 * 1024), // 50MB default chunk size
 			Advanced: true,
 		}, {
-			Name:     "upload_concurrency",
-			Help:     `Concurrency for chunked uploads.
+			Name: "upload_concurrency",
+			Help: `Concurrency for chunked uploads.
 
 This is the number of chunks of the same file that are uploaded
 concurrently for chunked uploads.
@@ -102,27 +102,27 @@ type Options struct {
 
 // Fs represents a remote FolderFort server
 type Fs struct {
-	name       string         // name of this remote
-	root       string         // the path we are working on
-	opt        Options        // parsed options
-	features   *fs.Features   // optional features
-	srv        *rest.Client   // the connection to the server
-	pacer      *fs.Pacer     // pacer for API calls
-	precision  time.Duration  // precision of dates from the server
+	name      string        // name of this remote
+	root      string        // the path we are working on
+	opt       Options       // parsed options
+	features  *fs.Features  // optional features
+	srv       *rest.Client  // the connection to the server
+	pacer     *fs.Pacer     // pacer for API calls
+	precision time.Duration // precision of dates from the server
 }
 
 // Object describes a FolderFort file
 type Object struct {
-	fs          *Fs           // what this object is part of
-	remote      string        // The remote path
-	hasMetaData bool          // whether info below has been set
-	size        int64         // size of the object
-	modTime     time.Time     // modification time of the object
-	id          int           // FolderFort ID of the object
-	parentID    *int          // parent folder ID
-	mimeType    string        // Content-Type of the object
-	hash        string        // hash of the object
-	downloadURL string        // download URL from the API
+	fs          *Fs       // what this object is part of
+	remote      string    // The remote path
+	hasMetaData bool      // whether info below has been set
+	size        int64     // size of the object
+	modTime     time.Time // modification time of the object
+	id          int       // FolderFort ID of the object
+	parentID    *int      // parent folder ID
+	mimeType    string    // Content-Type of the object
+	hash        string    // hash of the object
+	downloadURL string    // download URL from the API
 }
 
 // NewFs constructs an Fs from the path, container:path
@@ -148,9 +148,9 @@ func NewFs(ctx context.Context, name, root string, m configmap.Mapper) (fs.Fs, e
 	}
 
 	root = strings.Trim(root, "/")
-	
+
 	client := fshttp.NewClient(ctx)
-	
+
 	f := &Fs{
 		name:      name,
 		root:      root,
@@ -178,7 +178,7 @@ func NewFs(ctx context.Context, name, root string, m configmap.Mapper) (fs.Fs, e
 			parentPath = ""
 		}
 		itemName := path.Base(root)
-		
+
 		parentID, err := f.getParentID(ctx, parentPath)
 		if err == nil {
 			entries, err := f.listAll(ctx, parentID)
@@ -320,7 +320,7 @@ func (f *Fs) listAll(ctx context.Context, parentID *int) ([]api.FileEntry, error
 
 	var entries []api.FileEntry
 	var result interface{}
-	
+
 	err := f.pacer.Call(func() (bool, error) {
 		resp, err := f.srv.CallJSON(ctx, &opts, nil, &result)
 		return shouldRetry(ctx, resp, err)
@@ -368,9 +368,9 @@ func (f *Fs) List(ctx context.Context, dir string) (entries fs.DirEntries, err e
 	} else if dir != "" && f.root != "" {
 		targetDir = path.Join(f.root, dir)
 	}
-	
+
 	fs.Debugf(f, "List: dir='%s', targetDir='%s'", dir, targetDir)
-	
+
 	parentID, err := f.getParentID(ctx, targetDir)
 	if err != nil {
 		return nil, err
@@ -464,7 +464,7 @@ func (f *Fs) PutUnchecked(ctx context.Context, in io.Reader, src fs.ObjectInfo, 
 	// Get parent directory - this is relative to the filesystem root
 	dir, fileName := path.Split(remote)
 	dir = strings.TrimSuffix(dir, "/")
-	
+
 	// If dir is empty, we're uploading to the filesystem root
 	// If filesystem root is not empty, we need to resolve that
 	targetDir := dir
@@ -473,9 +473,9 @@ func (f *Fs) PutUnchecked(ctx context.Context, in io.Reader, src fs.ObjectInfo, 
 	} else if dir != "" && f.root != "" {
 		targetDir = path.Join(f.root, dir)
 	}
-	
+
 	fs.Debugf(f, "Upload target: remote='%s', dir='%s', targetDir='%s', fileName='%s'", remote, dir, targetDir, fileName)
-	
+
 	parentID, err := f.getParentID(ctx, targetDir)
 	if err != nil {
 		return nil, err
@@ -544,24 +544,24 @@ func (f *Fs) putUnchecked(ctx context.Context, in io.Reader, fileName string, pa
 // Mkdir creates the directory if it doesn't exist
 func (f *Fs) Mkdir(ctx context.Context, dir string) error {
 	fs.Debugf(f, "Mkdir called with dir: '%s'", dir)
-	
+
 	// If dir is empty, we need to create the root directory (f.root)
 	targetDir := dir
 	if dir == "" && f.root != "" {
 		targetDir = f.root
 		fs.Debugf(f, "Empty dir, using root: '%s'", targetDir)
 	}
-	
+
 	// If both dir and root are empty, nothing to create (root directory)
 	if targetDir == "" {
 		fs.Debugf(f, "No directory to create (root)")
 		return nil
 	}
-	
+
 	// Split path and create directories recursively
 	parts := strings.Split(strings.Trim(targetDir, "/"), "/")
 	fs.Debugf(f, "Split into parts: %v", parts)
-	
+
 	var parentID *int
 
 	for i, part := range parts {
@@ -603,6 +603,11 @@ func (f *Fs) Mkdir(ctx context.Context, dir string) error {
 
 // createDir creates a single directory
 func (f *Fs) createDir(ctx context.Context, name string, parentID *int) (*int, error) {
+	// Validate folder name length - FolderFort requires at least 3 characters
+	if len(name) < 3 {
+		return nil, fmt.Errorf("folder name '%s' must be at least 3 characters long", name)
+	}
+
 	request := api.CreateFolderRequest{
 		Name:     name,
 		ParentID: parentID,

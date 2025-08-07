@@ -171,7 +171,7 @@ func (mu *multipartUpload) getSignedPartURLs(ctx context.Context, partNumbers []
 	return response.URLs, nil
 }
 
-// uploadParts uploads all parts to their signed URLs
+// uploadParts uploads all parts to their signed URLs using streaming approach
 func (mu *multipartUpload) uploadParts(ctx context.Context, in io.Reader, signedURLs []api.PartURLInfo, totalSize int64) ([]api.CompletedPart, error) {
 	// unwrap the accounting from the input
 	in, wrap := accounting.UnWrap(in)
@@ -182,47 +182,84 @@ func (mu *multipartUpload) uploadParts(ctx context.Context, in io.Reader, signed
 	g, gCtx := errgroup.WithContext(ctx)
 	g.SetLimit(mu.f.opt.UploadConcurrency)
 
-	// Read all data into memory first for parallel uploads
-	allData, err := io.ReadAll(in)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read upload data: %w", err)
+	// Create a buffered channel to pass part data to upload goroutines
+	type partDataStruct struct {
+		partNumber int
+		data       []byte
+		url        string
 	}
 
-	for i, urlInfo := range signedURLs {
-		i := i
-		urlInfo := urlInfo
+	partChan := make(chan partDataStruct, mu.f.opt.UploadConcurrency)
 
+	// Start upload goroutines
+	for i := 0; i < mu.f.opt.UploadConcurrency; i++ {
 		g.Go(func() error {
-			// Calculate part data
-			partStart := int64(i) * mu.chunkSize
-			partEnd := partStart + mu.chunkSize
-			if partEnd > totalSize {
-				partEnd = totalSize
+			for part := range partChan {
+				fs.Debugf(mu.f, "Uploading part %d: %d bytes", part.partNumber, len(part.data))
+
+				// Upload part to signed URL
+				etag, err := mu.uploadPart(gCtx, part.url, part.data, wrap)
+				if err != nil {
+					return fmt.Errorf("failed to upload part %d: %w", part.partNumber, err)
+				}
+
+				// Add to completed parts
+				mu_lock.Lock()
+				completedParts = append(completedParts, api.CompletedPart{
+					PartNumber: part.partNumber,
+					ETag:       etag,
+				})
+				mu_lock.Unlock()
+
+				fs.Debugf(mu.f, "Completed part %d with ETag: %s", part.partNumber, etag)
 			}
-			partData := allData[partStart:partEnd]
-
-			fs.Debugf(mu.f, "Uploading part %d: %d bytes", urlInfo.PartNumber, len(partData))
-
-			// Upload part to signed URL
-			etag, err := mu.uploadPart(gCtx, urlInfo.URL, partData, wrap)
-			if err != nil {
-				return fmt.Errorf("failed to upload part %d: %w", urlInfo.PartNumber, err)
-			}
-
-			// Add to completed parts
-			mu_lock.Lock()
-			completedParts = append(completedParts, api.CompletedPart{
-				PartNumber: urlInfo.PartNumber,
-				ETag:       etag,
-			})
-			mu_lock.Unlock()
-
-			fs.Debugf(mu.f, "Completed part %d with ETag: %s", urlInfo.PartNumber, etag)
 			return nil
 		})
 	}
 
-	err = g.Wait()
+	// Read and send parts to upload goroutines
+	go func() {
+		defer close(partChan)
+
+		var bytesRead int64 = 0
+
+		for _, urlInfo := range signedURLs {
+			// Calculate how much to read for this part
+			remainingBytes := totalSize - bytesRead
+			readSize := mu.chunkSize
+			if remainingBytes < mu.chunkSize {
+				readSize = remainingBytes
+			}
+
+			// Read exactly the amount needed for this part
+			partData := make([]byte, readSize)
+			n, err := io.ReadFull(in, partData)
+			if err != nil && err != io.ErrUnexpectedEOF {
+				fs.Errorf(mu.f, "Failed to read part %d: %v", urlInfo.PartNumber, err)
+				return
+			}
+
+			bytesRead += int64(n)
+
+			// Send part data to upload goroutines
+			select {
+			case partChan <- partDataStruct{
+				partNumber: urlInfo.PartNumber,
+				data:       partData[:n],
+				url:        urlInfo.URL,
+			}:
+			case <-gCtx.Done():
+				return
+			}
+
+			// Break if we've read all data
+			if bytesRead >= totalSize {
+				break
+			}
+		}
+	}()
+
+	err := g.Wait()
 	if err != nil {
 		return nil, err
 	}

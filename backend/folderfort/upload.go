@@ -241,7 +241,11 @@ func (mu *multipartUpload) uploadPart(ctx context.Context, signedURL string, dat
 
 	fs.Debugf(mu.f, "Uploading to URL: %s with %d bytes", signedURL, len(data))
 
-	req, err := http.NewRequestWithContext(ctx, "PUT", signedURL, bytes.NewReader(data))
+	// Create a reader and wrap it for progress tracking
+	reader := bytes.NewReader(data)
+	wrappedReader := wrap(reader)
+
+	req, err := http.NewRequestWithContext(ctx, "PUT", signedURL, wrappedReader)
 	if err != nil {
 		return "", err
 	}

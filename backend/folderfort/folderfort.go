@@ -53,6 +53,32 @@ func init() {
 			Default:  0,
 			Advanced: true,
 		}, {
+			Name:     "chunk_size",
+			Help:     `Upload chunk size. Must be a power of 2 >= 256k.
+
+Any files larger than this will be uploaded in chunks of this size.
+The chunk size must be a power of 2 and at least 256k. Making it larger
+will reduce the number of API calls needed to upload a file, but will use
+more memory. The default is usually a good choice.
+`,
+			Default:  fs.SizeSuffix(50 * 1024 * 1024), // 50MB default chunk size  
+			Advanced: true,
+		}, {
+			Name:     "upload_concurrency",
+			Help:     `Concurrency for chunked uploads.
+
+This is the number of chunks of the same file that are uploaded
+concurrently for chunked uploads.
+
+NB if you set this to > 1 then the checksums of chunks will be
+incorrect. This speeds up transfers substantially though.
+
+If you are uploading small numbers of large files over high speed links
+and these uploads do not fully utilize your bandwidth, then increasing
+this may help to speed up the transfers.`,
+			Default:  1,
+			Advanced: true,
+		}, {
 			Name:     config.ConfigEncoding,
 			Help:     config.ConfigEncodingHelp,
 			Advanced: true,
@@ -66,10 +92,12 @@ func init() {
 
 // Options defines the configuration for this backend
 type Options struct {
-	URL         string               `config:"url"`
-	AccessToken string               `config:"access_token"`
-	WorkspaceID int                  `config:"workspace_id"`
-	Enc         encoder.MultiEncoder `config:"encoding"`
+	URL               string               `config:"url"`
+	AccessToken       string               `config:"access_token"`
+	WorkspaceID       int                  `config:"workspace_id"`
+	ChunkSize         fs.SizeSuffix        `config:"chunk_size"`
+	UploadConcurrency int                  `config:"upload_concurrency"`
+	Enc               encoder.MultiEncoder `config:"encoding"`
 }
 
 // Fs represents a remote FolderFort server
@@ -453,7 +481,14 @@ func (f *Fs) PutUnchecked(ctx context.Context, in io.Reader, src fs.ObjectInfo, 
 		return nil, err
 	}
 
-	// Upload the file
+	// Check if we should use S3 multipart upload
+	if size >= 0 && size > int64(f.opt.ChunkSize) {
+		fs.Debugf(f, "File size %d exceeds chunk size %d, using S3 multipart upload", size, f.opt.ChunkSize)
+		mu := f.newMultipartUpload(ctx, remote, src, parentID, options...)
+		return mu.upload(ctx, in)
+	}
+
+	// Upload the file normally
 	modTime := src.ModTime(ctx)
 	o, err := f.putUnchecked(ctx, in, fileName, parentID, size, modTime, options...)
 	if err != nil {

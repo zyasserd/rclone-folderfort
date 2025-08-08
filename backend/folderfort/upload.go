@@ -98,10 +98,11 @@ func (mu *multipartUpload) upload(ctx context.Context, in io.Reader) (*Object, e
 
 // startMultipartUpload initiates a multipart upload
 func (mu *multipartUpload) startMultipartUpload(ctx context.Context) error {
-	// Extract filename from remote path
+	// Extract filename from remote path and encode it properly
 	_, fileName := path.Split(mu.remote)
+	encodedFileName := mu.f.opt.Enc.FromStandardName(mu.f.ensureMinLength(fileName))
 
-	// Get file extension
+	// Get file extension (use original fileName for extension)
 	ext := path.Ext(fileName)
 	if ext != "" {
 		ext = ext[1:] // Remove the dot
@@ -114,7 +115,7 @@ func (mu *multipartUpload) startMultipartUpload(ctx context.Context) error {
 	}
 
 	request := api.CreateMultipartUploadRequest{
-		Filename:     fileName,
+		Filename:     encodedFileName,            // Use encoded filename
 		Mime:         "application/octet-stream", // Default MIME type
 		Size:         mu.src.Size(),
 		Extension:    ext,
@@ -360,9 +361,10 @@ func (mu *multipartUpload) completeMultipartUpload(ctx context.Context, parts []
 
 // createS3Entry creates a file entry from the uploaded S3 file
 func (mu *multipartUpload) createS3Entry(ctx context.Context) (*api.FileEntry, error) {
-	// Extract filename and extension from remote path
+	// Extract filename and extension from remote path and encode properly
 	_, fileName := path.Split(mu.remote)
-	ext := path.Ext(fileName)
+	encodedFileName := mu.f.opt.Enc.FromStandardName(mu.f.ensureMinLength(fileName))
+	ext := path.Ext(fileName) // Use original fileName for extension
 	if ext != "" {
 		ext = ext[1:] // Remove the dot
 	}
@@ -387,7 +389,7 @@ func (mu *multipartUpload) createS3Entry(ctx context.Context) (*api.FileEntry, e
 		RelativePath:    "",
 		Disk:            "uploads",
 		ClientMime:      "application/octet-stream",
-		ClientName:      fileName,
+		ClientName:      encodedFileName, // Use encoded filename
 		Filename:        filename,
 		Size:            mu.src.Size(),
 		ClientExtension: ext,

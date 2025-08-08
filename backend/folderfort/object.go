@@ -86,8 +86,8 @@ func (o *Object) readMetaData(ctx context.Context) error {
 		dir = ""
 	}
 
-	// Encode the fileName for comparison
-	encodedFileName := o.fs.opt.Enc.FromStandardName(fileName)
+	// Encode the fileName for comparison: pad first, then encode
+	encodedFileName := o.fs.opt.Enc.FromStandardName(o.fs.ensureMinLength(fileName))
 
 	// Resolve directory relative to filesystem root
 	targetDir := dir

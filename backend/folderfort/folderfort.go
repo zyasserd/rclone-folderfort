@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/rclone/rclone/backend/folderfort/api"
 	"github.com/rclone/rclone/fs"
@@ -30,6 +31,10 @@ const (
 	minSleep      = 10 * time.Millisecond
 	maxSleep      = 2 * time.Second
 	decayConstant = 2 // bigger for slower decay, exponential
+
+	// FolderFort name length requirements
+	minNameLength = 3   // FolderFort requires at least 3 characters
+	paddingChar   = " " // Use space for padding, then encode with EncodeRightSpace
 )
 
 // Register with Fs
@@ -86,7 +91,9 @@ this may help to speed up the transfers.`,
 				encoder.EncodeInvalidUtf8 |
 				encoder.EncodeSlash |
 				encoder.EncodeBackSlash |
-				encoder.EncodeCtl),
+				encoder.EncodeCtl |
+				encoder.EncodeLeftSpace |
+				encoder.EncodeRightSpace),
 		}},
 	})
 }
@@ -179,7 +186,7 @@ func NewFs(ctx context.Context, name, root string, m configmap.Mapper) (fs.Fs, e
 			parentPath = ""
 		}
 		itemName := path.Base(root)
-		encodedItemName := f.opt.Enc.FromStandardName(itemName)
+		encodedItemName := f.opt.Enc.FromStandardName(f.ensureMinLength(itemName))
 
 		parentID, err := f.getParentID(ctx, parentPath)
 		if err == nil {
@@ -267,13 +274,9 @@ func (f *Fs) getParentID(ctx context.Context, dirPath string) (*int, error) {
 		return nil, nil // root directory
 	}
 
-	// Encode the full path first, then split the encoded path
-	encodedPath := f.opt.Enc.FromStandardPath(dirPath)
-	fs.Debugf(f, "Encoded dirPath: '%s'", encodedPath)
-
-	// Split the encoded path into parts
-	parts := strings.Split(strings.Trim(encodedPath, "/"), "/")
-	fs.Debugf(f, "Split encoded dirPath into parts: %v", parts)
+	// Split the standard path into parts first
+	parts := strings.Split(strings.Trim(dirPath, "/"), "/")
+	fs.Debugf(f, "Split dirPath into parts: %v", parts)
 	var parentID *int
 
 	// Navigate through each part of the path
@@ -283,6 +286,12 @@ func (f *Fs) getParentID(ctx context.Context, dirPath string) (*int, error) {
 		}
 
 		fs.Debugf(f, "Processing path part %d: '%s', current parentID: %v", i, part, parentID)
+
+		// Pad first, then encode
+		paddedPart := f.ensureMinLength(part)
+		encodedPart := f.opt.Enc.FromStandardName(paddedPart)
+
+		fs.Debugf(f, "Part: '%s' -> padded: '%s' -> encoded: '%s'", part, paddedPart, encodedPart)
 
 		// List entries in current directory to find the next part
 		entries, err := f.listAll(ctx, parentID)
@@ -295,22 +304,21 @@ func (f *Fs) getParentID(ctx context.Context, dirPath string) (*int, error) {
 
 		found := false
 		for _, entry := range entries {
-			// Decode the entry name from the backend to compare with our encoded part
-			decodedEntryName := f.opt.Enc.ToStandardName(entry.Name)
-			originalPart := f.opt.Enc.ToStandardName(part)
-			fs.Debugf(f, "Checking entry: name='%s' (decoded='%s'), type='%s', id=%d, comparing with part='%s' (original='%s')",
-				entry.Name, decodedEntryName, entry.Type, entry.ID, part, originalPart)
+			// Decode the entry name from the backend for debugging
+			decodedEntryName := f.restoreMinLength(f.opt.Enc.ToStandardName(entry.Name))
+			fs.Debugf(f, "Checking entry: name='%s' (decoded='%s'), type='%s', id=%d, comparing with encodedPart='%s'",
+				entry.Name, decodedEntryName, entry.Type, entry.ID, encodedPart)
 
-			if entry.Name == part && entry.Type == "folder" {
+			if entry.Name == encodedPart && entry.Type == "folder" {
 				parentID = &entry.ID
 				found = true
-				fs.Debugf(f, "Found matching folder '%s' with ID: %d", part, entry.ID)
+				fs.Debugf(f, "Found matching folder '%s' with ID: %d", encodedPart, entry.ID)
 				break
 			}
 		}
 
 		if !found {
-			fs.Debugf(f, "Folder '%s' not found in current directory", part)
+			fs.Debugf(f, "Folder '%s' not found in current directory", encodedPart)
 			return nil, fs.ErrorDirNotFound
 		}
 	}
@@ -420,8 +428,8 @@ func (f *Fs) List(ctx context.Context, dir string) (entries fs.DirEntries, err e
 	fs.Debugf(f, "List: found %d items in directory", len(items))
 
 	for i, item := range items {
-		// Decode the name from the backend
-		decodedName := f.opt.Enc.ToStandardName(item.Name)
+		// Decode the name from the backend: first decode, then restore padding
+		decodedName := f.restoreMinLength(f.opt.Enc.ToStandardName(item.Name))
 		remote := decodedName
 		if dir != "" {
 			remote = path.Join(dir, decodedName)
@@ -510,8 +518,8 @@ func (f *Fs) PutUnchecked(ctx context.Context, in io.Reader, src fs.ObjectInfo, 
 	dir, fileName := path.Split(remote)
 	dir = strings.TrimSuffix(dir, "/")
 
-	// Encode the fileName for upload
-	encodedFileName := f.opt.Enc.FromStandardName(fileName)
+	// Encode the fileName for upload: pad first, then encode
+	encodedFileName := f.opt.Enc.FromStandardName(f.ensureMinLength(fileName))
 	fs.Debugf(f, "Original fileName: '%s', encoded fileName: '%s'", fileName, encodedFileName)
 
 	// If dir is empty, we're uploading to the filesystem root
@@ -539,7 +547,7 @@ func (f *Fs) PutUnchecked(ctx context.Context, in io.Reader, src fs.ObjectInfo, 
 
 	// Upload the file normally
 	modTime := src.ModTime(ctx)
-	o, err := f.putUnchecked(ctx, in, encodedFileName, parentID, size, modTime, options...)
+	o, err := f.putUnchecked(ctx, in, fileName, encodedFileName, parentID, size, modTime, options...)
 	if err != nil {
 		return nil, err
 	}
@@ -547,9 +555,9 @@ func (f *Fs) PutUnchecked(ctx context.Context, in io.Reader, src fs.ObjectInfo, 
 }
 
 // putUnchecked uploads the object with the given filename and parent
-func (f *Fs) putUnchecked(ctx context.Context, in io.Reader, fileName string, parentID *int, size int64, modTime time.Time, options ...fs.OpenOption) (*Object, error) {
-	// Create multipart form
-	formReader, contentType, _, err := rest.MultipartUpload(ctx, in, nil, "file", fileName)
+func (f *Fs) putUnchecked(ctx context.Context, in io.Reader, originalFileName, encodedFileName string, parentID *int, size int64, modTime time.Time, options ...fs.OpenOption) (*Object, error) {
+	// Create multipart form - use encoded filename for the API
+	formReader, contentType, _, err := rest.MultipartUpload(ctx, in, nil, "file", encodedFileName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make multipart upload: %w", err)
 	}
@@ -566,9 +574,9 @@ func (f *Fs) putUnchecked(ctx context.Context, in io.Reader, fileName string, pa
 		opts.Parameters = url.Values{
 			"parentId": {strconv.Itoa(*parentID)},
 		}
-		fs.Debugf(f, "Uploading '%s' to parentID: %d", fileName, *parentID)
+		fs.Debugf(f, "Uploading '%s' to parentID: %d", encodedFileName, *parentID)
 	} else {
-		fs.Debugf(f, "Uploading '%s' to root", fileName)
+		fs.Debugf(f, "Uploading '%s' to root", encodedFileName)
 	}
 
 	var response api.UploadResponse
@@ -582,8 +590,8 @@ func (f *Fs) putUnchecked(ctx context.Context, in io.Reader, fileName string, pa
 
 	fs.Debugf(f, "Upload response: %+v", response)
 
-	// Create object from response
-	obj, err := f.newObjectWithInfo(ctx, fileName, &response.FileEntry)
+	// Create object from response - use original filename for the object
+	obj, err := f.newObjectWithInfo(ctx, originalFileName, &response.FileEntry)
 	if err != nil {
 		return nil, err
 	}
@@ -610,13 +618,9 @@ func (f *Fs) Mkdir(ctx context.Context, dir string) error {
 		return nil
 	}
 
-	// Encode the full path first, then split the encoded path
-	encodedTargetDir := f.opt.Enc.FromStandardPath(targetDir)
-	fs.Debugf(f, "Encoded targetDir: '%s'", encodedTargetDir)
-
-	// Split the encoded path and create directories recursively
-	parts := strings.Split(strings.Trim(encodedTargetDir, "/"), "/")
-	fs.Debugf(f, "Split encoded path into parts: %v", parts)
+	// Split the standard path into parts
+	parts := strings.Split(strings.Trim(targetDir, "/"), "/")
+	fs.Debugf(f, "Split targetDir into parts: %v", parts)
 
 	var parentID *int
 
@@ -625,7 +629,11 @@ func (f *Fs) Mkdir(ctx context.Context, dir string) error {
 			continue
 		}
 
-		fs.Debugf(f, "Processing part %d: '%s', current parentID: %v", i, part, parentID)
+		// Pad first, then encode
+		paddedPart := f.ensureMinLength(part)
+		encodedPart := f.opt.Enc.FromStandardName(paddedPart)
+
+		fs.Debugf(f, "Processing part %d: '%s' -> padded: '%s' -> encoded: '%s', current parentID: %v", i, part, paddedPart, encodedPart, parentID)
 
 		// Check if directory already exists
 		entries, err := f.listAll(ctx, parentID)
@@ -640,23 +648,23 @@ func (f *Fs) Mkdir(ctx context.Context, dir string) error {
 		for _, entry := range entries {
 			fs.Debugf(f, "Checking existing entry: name='%s', type='%s'", entry.Name, entry.Type)
 			// Compare with the encoded part name
-			if entry.Name == part && entry.Type == "folder" {
+			if entry.Name == encodedPart && entry.Type == "folder" {
 				parentID = &entry.ID
 				found = true
-				fs.Debugf(f, "Found existing folder '%s' with ID: %d", part, entry.ID)
+				fs.Debugf(f, "Found existing folder '%s' with ID: %d", encodedPart, entry.ID)
 				break
 			}
 		}
 
 		if !found {
-			// Create the directory
-			fs.Debugf(f, "Creating new folder '%s' with parentID: %v", part, parentID)
-			parentID, err = f.createDir(ctx, part, parentID)
+			// Create the directory with encoded name
+			fs.Debugf(f, "Creating new folder '%s' with parentID: %v", encodedPart, parentID)
+			parentID, err = f.createDir(ctx, encodedPart, parentID)
 			if err != nil {
-				fs.Debugf(f, "Error creating folder '%s': %v", part, err)
+				fs.Debugf(f, "Error creating folder '%s': %v", encodedPart, err)
 				return err
 			}
-			fs.Debugf(f, "Successfully created folder '%s' with ID: %d", part, *parentID)
+			fs.Debugf(f, "Successfully created folder '%s' with ID: %d", encodedPart, *parentID)
 		}
 	}
 
@@ -664,11 +672,82 @@ func (f *Fs) Mkdir(ctx context.Context, dir string) error {
 	return nil
 }
 
+// ensureMinLength ensures that the standard name meets FolderFort's minimum length requirement
+func (f *Fs) ensureMinLength(standardName string) string {
+	// Count Unicode runes (characters) not bytes
+	runeCount := utf8.RuneCountInString(standardName)
+	if runeCount >= minNameLength {
+		return standardName
+	}
+
+	// Pad with space characters to reach minimum length
+	// Spaces will be encoded later by EncodeRightSpace, making padding invisible
+	padding := strings.Repeat(paddingChar, minNameLength-runeCount)
+	return standardName + padding
+}
+
+// restoreMinLength removes the padding added by ensureMinLength
+// This function expects a decoded name (after encoder.ToStandardName)
+func (f *Fs) restoreMinLength(decodedName string) string {
+	// Count Unicode runes (characters) not bytes
+	runeCount := utf8.RuneCountInString(decodedName)
+
+	// Only try to remove padding if the name is exactly the minimum length
+	if runeCount == minNameLength {
+		// Check if it ends with spaces that could be padding
+		if strings.HasSuffix(decodedName, strings.Repeat(paddingChar, 2)) {
+			// Remove 2 spaces - this was originally a single character
+			return strings.TrimSuffix(decodedName, strings.Repeat(paddingChar, 2))
+		}
+		if strings.HasSuffix(decodedName, paddingChar) && !strings.HasSuffix(decodedName, strings.Repeat(paddingChar, 2)) {
+			// Remove 1 space - this was originally a 2-character name
+			return strings.TrimSuffix(decodedName, paddingChar)
+		}
+	}
+
+	// For names not exactly 3 characters, or names that don't have trailing spaces,
+	// return as-is (no padding to remove)
+	return decodedName
+}
+
+// ensureMinLengthPath applies ensureMinLength to each component of a path
+func (f *Fs) ensureMinLengthPath(standardPath string) string {
+	if standardPath == "" {
+		return ""
+	}
+
+	parts := strings.Split(standardPath, "/")
+	for i, part := range parts {
+		// Only apply ensureMinLength to non-empty parts
+		if part != "" {
+			parts[i] = f.ensureMinLength(part)
+		}
+	}
+	return strings.Join(parts, "/")
+}
+
+// restoreMinLengthPath applies restoreMinLength to each component of a path
+func (f *Fs) restoreMinLengthPath(decodedPath string) string {
+	if decodedPath == "" {
+		return ""
+	}
+
+	parts := strings.Split(decodedPath, "/")
+	for i, part := range parts {
+		// Only apply restoreMinLength to non-empty parts
+		if part != "" {
+			parts[i] = f.restoreMinLength(part)
+		}
+	}
+	return strings.Join(parts, "/")
+}
+
 // createDir creates a single directory
 func (f *Fs) createDir(ctx context.Context, name string, parentID *int) (*int, error) {
-	// Validate folder name length - FolderFort requires at least 3 characters
-	if len(name) < 3 {
-		return nil, fmt.Errorf("folder name '%s' must be at least 3 characters long", name)
+	// The name should already be encoded and padded from the caller
+	// Validate folder name length - FolderFort requires minimum length
+	if utf8.RuneCountInString(name) < minNameLength {
+		return nil, fmt.Errorf("folder name '%s' must be at least %d characters long", name, minNameLength)
 	}
 
 	request := api.CreateFolderRequest{

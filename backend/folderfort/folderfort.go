@@ -760,6 +760,18 @@ func (f *Fs) deleteEntry(ctx context.Context, entryIDs []string, deleteForever b
 	return nil
 }
 
+// SetUploadChunkSize sets the upload chunk size for testing
+func (f *Fs) SetUploadChunkSize(cs fs.SizeSuffix) (old fs.SizeSuffix, err error) {
+	// Validate chunk size - S3 multipart has a minimum of 5MB except for the last part
+	const minChunkSize = 5 * fs.Mebi
+	if cs < minChunkSize {
+		return 0, fmt.Errorf("chunk size %s is less than minimum %s", cs, minChunkSize)
+	}
+
+	old, f.opt.ChunkSize = f.opt.ChunkSize, cs
+	return old, nil
+}
+
 // Check the interfaces are satisfied
 var (
 	_ fs.Fs     = (*Fs)(nil)

@@ -96,12 +96,17 @@ func (o *Object) readMetaData(ctx context.Context) error {
 
 	parentID, err := o.fs.getParentID(ctx, targetDir)
 	if err != nil {
+		// If the parent directory doesn't exist, the object doesn't exist either
+		if err == fs.ErrorDirNotFound {
+			return fs.ErrorObjectNotFound
+		}
 		return err
 	}
 
 	entries, err := o.fs.listAll(ctx, parentID)
 	if err != nil {
-		return err
+		// If we can't list the parent directory, the object doesn't exist
+		return fs.ErrorObjectNotFound
 	}
 
 	for _, entry := range entries {
@@ -119,9 +124,7 @@ func (o *Object) readMetaData(ctx context.Context) error {
 	}
 
 	return fs.ErrorObjectNotFound
-}
-
-// Open an object for read
+} // Open an object for read
 func (o *Object) Open(ctx context.Context, options ...fs.OpenOption) (io.ReadCloser, error) {
 	if err := o.readMetaData(ctx); err != nil {
 		return nil, err

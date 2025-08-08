@@ -86,6 +86,9 @@ func (o *Object) readMetaData(ctx context.Context) error {
 		dir = ""
 	}
 
+	// Encode the fileName for comparison
+	encodedFileName := o.fs.opt.Enc.FromStandardName(fileName)
+
 	// Resolve directory relative to filesystem root
 	targetDir := dir
 	if dir == "" && o.fs.root != "" {
@@ -110,7 +113,7 @@ func (o *Object) readMetaData(ctx context.Context) error {
 	}
 
 	for _, entry := range entries {
-		if entry.Name == fileName && entry.Type != "folder" {
+		if entry.Name == encodedFileName && entry.Type != "folder" {
 			o.hasMetaData = true
 			o.size = entry.FileSize
 			o.modTime = entry.UpdatedAt

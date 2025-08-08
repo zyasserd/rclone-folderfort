@@ -85,6 +85,7 @@ this may help to speed up the transfers.`,
 			Default: (encoder.Base |
 				encoder.EncodeInvalidUtf8 |
 				encoder.EncodeSlash |
+				encoder.EncodeBackSlash |
 				encoder.EncodeCtl),
 		}},
 	})
@@ -178,13 +179,14 @@ func NewFs(ctx context.Context, name, root string, m configmap.Mapper) (fs.Fs, e
 			parentPath = ""
 		}
 		itemName := path.Base(root)
+		encodedItemName := f.opt.Enc.FromStandardName(itemName)
 
 		parentID, err := f.getParentID(ctx, parentPath)
 		if err == nil {
 			entries, err := f.listAll(ctx, parentID)
 			if err == nil {
 				for _, entry := range entries {
-					if entry.Name == itemName {
+					if entry.Name == encodedItemName {
 						if entry.Type != "folder" {
 							// Root is a file, not a directory
 							f.root = parentPath
@@ -265,9 +267,13 @@ func (f *Fs) getParentID(ctx context.Context, dirPath string) (*int, error) {
 		return nil, nil // root directory
 	}
 
-	// Split the path into parts
-	parts := strings.Split(strings.Trim(dirPath, "/"), "/")
-	fs.Debugf(f, "Split dirPath into parts: %v", parts)
+	// Encode the full path first, then split the encoded path
+	encodedPath := f.opt.Enc.FromStandardPath(dirPath)
+	fs.Debugf(f, "Encoded dirPath: '%s'", encodedPath)
+
+	// Split the encoded path into parts
+	parts := strings.Split(strings.Trim(encodedPath, "/"), "/")
+	fs.Debugf(f, "Split encoded dirPath into parts: %v", parts)
 	var parentID *int
 
 	// Navigate through each part of the path
@@ -289,7 +295,12 @@ func (f *Fs) getParentID(ctx context.Context, dirPath string) (*int, error) {
 
 		found := false
 		for _, entry := range entries {
-			fs.Debugf(f, "Checking entry: name='%s', type='%s', id=%d", entry.Name, entry.Type, entry.ID)
+			// Decode the entry name from the backend to compare with our encoded part
+			decodedEntryName := f.opt.Enc.ToStandardName(entry.Name)
+			originalPart := f.opt.Enc.ToStandardName(part)
+			fs.Debugf(f, "Checking entry: name='%s' (decoded='%s'), type='%s', id=%d, comparing with part='%s' (original='%s')",
+				entry.Name, decodedEntryName, entry.Type, entry.ID, part, originalPart)
+
 			if entry.Name == part && entry.Type == "folder" {
 				parentID = &entry.ID
 				found = true
@@ -409,12 +420,14 @@ func (f *Fs) List(ctx context.Context, dir string) (entries fs.DirEntries, err e
 	fs.Debugf(f, "List: found %d items in directory", len(items))
 
 	for i, item := range items {
-		remote := item.Name
+		// Decode the name from the backend
+		decodedName := f.opt.Enc.ToStandardName(item.Name)
+		remote := decodedName
 		if dir != "" {
-			remote = path.Join(dir, item.Name)
+			remote = path.Join(dir, decodedName)
 		}
 
-		fs.Debugf(f, "List: processing item %d: name='%s', type='%s', remote='%s'", i, item.Name, item.Type, remote)
+		fs.Debugf(f, "List: processing item %d: name='%s' (decoded='%s'), type='%s', remote='%s'", i, item.Name, decodedName, item.Type, remote)
 
 		switch item.Type {
 		case "folder":
@@ -497,6 +510,10 @@ func (f *Fs) PutUnchecked(ctx context.Context, in io.Reader, src fs.ObjectInfo, 
 	dir, fileName := path.Split(remote)
 	dir = strings.TrimSuffix(dir, "/")
 
+	// Encode the fileName for upload
+	encodedFileName := f.opt.Enc.FromStandardName(fileName)
+	fs.Debugf(f, "Original fileName: '%s', encoded fileName: '%s'", fileName, encodedFileName)
+
 	// If dir is empty, we're uploading to the filesystem root
 	// If filesystem root is not empty, we need to resolve that
 	targetDir := dir
@@ -522,7 +539,7 @@ func (f *Fs) PutUnchecked(ctx context.Context, in io.Reader, src fs.ObjectInfo, 
 
 	// Upload the file normally
 	modTime := src.ModTime(ctx)
-	o, err := f.putUnchecked(ctx, in, fileName, parentID, size, modTime, options...)
+	o, err := f.putUnchecked(ctx, in, encodedFileName, parentID, size, modTime, options...)
 	if err != nil {
 		return nil, err
 	}
@@ -593,9 +610,13 @@ func (f *Fs) Mkdir(ctx context.Context, dir string) error {
 		return nil
 	}
 
-	// Split path and create directories recursively
-	parts := strings.Split(strings.Trim(targetDir, "/"), "/")
-	fs.Debugf(f, "Split into parts: %v", parts)
+	// Encode the full path first, then split the encoded path
+	encodedTargetDir := f.opt.Enc.FromStandardPath(targetDir)
+	fs.Debugf(f, "Encoded targetDir: '%s'", encodedTargetDir)
+
+	// Split the encoded path and create directories recursively
+	parts := strings.Split(strings.Trim(encodedTargetDir, "/"), "/")
+	fs.Debugf(f, "Split encoded path into parts: %v", parts)
 
 	var parentID *int
 
@@ -618,6 +639,7 @@ func (f *Fs) Mkdir(ctx context.Context, dir string) error {
 		found := false
 		for _, entry := range entries {
 			fs.Debugf(f, "Checking existing entry: name='%s', type='%s'", entry.Name, entry.Type)
+			// Compare with the encoded part name
 			if entry.Name == part && entry.Type == "folder" {
 				parentID = &entry.ID
 				found = true

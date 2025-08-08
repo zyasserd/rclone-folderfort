@@ -258,40 +258,53 @@ func shouldRetry(ctx context.Context, resp *http.Response, err error) (bool, err
 
 // getParentID gets the parent folder ID for a given path
 func (f *Fs) getParentID(ctx context.Context, dirPath string) (*int, error) {
+	fs.Debugf(f, "getParentID called with dirPath: '%s'", dirPath)
+
 	if dirPath == "" || dirPath == "/" {
+		fs.Debugf(f, "Returning nil for root directory")
 		return nil, nil // root directory
 	}
 
 	// Split the path into parts
 	parts := strings.Split(strings.Trim(dirPath, "/"), "/")
+	fs.Debugf(f, "Split dirPath into parts: %v", parts)
 	var parentID *int
 
 	// Navigate through each part of the path
-	for _, part := range parts {
+	for i, part := range parts {
 		if part == "" {
 			continue
 		}
 
+		fs.Debugf(f, "Processing path part %d: '%s', current parentID: %v", i, part, parentID)
+
 		// List entries in current directory to find the next part
 		entries, err := f.listAll(ctx, parentID)
 		if err != nil {
+			fs.Debugf(f, "Error listing entries for parentID %v: %v", parentID, err)
 			return nil, err
 		}
 
+		fs.Debugf(f, "Found %d entries in directory with parentID %v", len(entries), parentID)
+
 		found := false
 		for _, entry := range entries {
+			fs.Debugf(f, "Checking entry: name='%s', type='%s', id=%d", entry.Name, entry.Type, entry.ID)
 			if entry.Name == part && entry.Type == "folder" {
 				parentID = &entry.ID
 				found = true
+				fs.Debugf(f, "Found matching folder '%s' with ID: %d", part, entry.ID)
 				break
 			}
 		}
 
 		if !found {
+			fs.Debugf(f, "Folder '%s' not found in current directory", part)
 			return nil, fs.ErrorDirNotFound
 		}
 	}
 
+	fs.Debugf(f, "Final parentID: %v", parentID)
 	return parentID, nil
 }
 
@@ -323,11 +336,19 @@ func (f *Fs) listAll(ctx context.Context, parentID *int) ([]api.FileEntry, error
 
 	err := f.pacer.Call(func() (bool, error) {
 		resp, err := f.srv.CallJSON(ctx, &opts, nil, &result)
+		if resp != nil {
+			fs.Debugf(f, "API response status: %d", resp.StatusCode)
+		}
+		if err != nil {
+			fs.Debugf(f, "API call error: %v", err)
+		}
 		return shouldRetry(ctx, resp, err)
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to call API: %w", err)
 	}
+
+	fs.Debugf(f, "Raw API result: %+v", result)
 
 	// Convert result back to JSON and try to parse
 	resultBytes, err := json.Marshal(result)
@@ -369,28 +390,37 @@ func (f *Fs) List(ctx context.Context, dir string) (entries fs.DirEntries, err e
 		targetDir = path.Join(f.root, dir)
 	}
 
-	fs.Debugf(f, "List: dir='%s', targetDir='%s'", dir, targetDir)
+	fs.Debugf(f, "List: dir='%s', targetDir='%s', f.root='%s'", dir, targetDir, f.root)
 
 	parentID, err := f.getParentID(ctx, targetDir)
 	if err != nil {
+		fs.Debugf(f, "List: getParentID failed for '%s': %v", targetDir, err)
 		return nil, err
 	}
+
+	fs.Debugf(f, "List: resolved parentID=%v for targetDir='%s'", parentID, targetDir)
 
 	items, err := f.listAll(ctx, parentID)
 	if err != nil {
+		fs.Debugf(f, "List: listAll failed for parentID %v: %v", parentID, err)
 		return nil, err
 	}
 
-	for _, item := range items {
+	fs.Debugf(f, "List: found %d items in directory", len(items))
+
+	for i, item := range items {
 		remote := item.Name
 		if dir != "" {
 			remote = path.Join(dir, item.Name)
 		}
 
+		fs.Debugf(f, "List: processing item %d: name='%s', type='%s', remote='%s'", i, item.Name, item.Type, remote)
+
 		switch item.Type {
 		case "folder":
 			d := fs.NewDir(remote, item.CreatedAt)
 			entries = append(entries, d)
+			fs.Debugf(f, "List: added directory '%s'", remote)
 		default:
 			o := &Object{
 				fs:          f,
@@ -405,9 +435,11 @@ func (f *Fs) List(ctx context.Context, dir string) (entries fs.DirEntries, err e
 				downloadURL: item.URL,
 			}
 			entries = append(entries, o)
+			fs.Debugf(f, "List: added file '%s', size=%d", remote, item.FileSize)
 		}
 	}
 
+	fs.Debugf(f, "List: returning %d entries", len(entries))
 	return entries, nil
 }
 
@@ -545,11 +577,14 @@ func (f *Fs) putUnchecked(ctx context.Context, in io.Reader, fileName string, pa
 func (f *Fs) Mkdir(ctx context.Context, dir string) error {
 	fs.Debugf(f, "Mkdir called with dir: '%s'", dir)
 
-	// If dir is empty, we need to create the root directory (f.root)
+	// Resolve directory relative to filesystem root
 	targetDir := dir
 	if dir == "" && f.root != "" {
 		targetDir = f.root
 		fs.Debugf(f, "Empty dir, using root: '%s'", targetDir)
+	} else if dir != "" && f.root != "" {
+		targetDir = path.Join(f.root, dir)
+		fs.Debugf(f, "Joining root and dir: root='%s', dir='%s', result='%s'", f.root, dir, targetDir)
 	}
 
 	// If both dir and root are empty, nothing to create (root directory)
@@ -569,16 +604,20 @@ func (f *Fs) Mkdir(ctx context.Context, dir string) error {
 			continue
 		}
 
-		fs.Debugf(f, "Processing part %d: '%s'", i, part)
+		fs.Debugf(f, "Processing part %d: '%s', current parentID: %v", i, part, parentID)
 
 		// Check if directory already exists
 		entries, err := f.listAll(ctx, parentID)
 		if err != nil {
+			fs.Debugf(f, "Error listing entries in Mkdir: %v", err)
 			return err
 		}
 
+		fs.Debugf(f, "Found %d existing entries", len(entries))
+
 		found := false
 		for _, entry := range entries {
+			fs.Debugf(f, "Checking existing entry: name='%s', type='%s'", entry.Name, entry.Type)
 			if entry.Name == part && entry.Type == "folder" {
 				parentID = &entry.ID
 				found = true
@@ -592,12 +631,14 @@ func (f *Fs) Mkdir(ctx context.Context, dir string) error {
 			fs.Debugf(f, "Creating new folder '%s' with parentID: %v", part, parentID)
 			parentID, err = f.createDir(ctx, part, parentID)
 			if err != nil {
+				fs.Debugf(f, "Error creating folder '%s': %v", part, err)
 				return err
 			}
 			fs.Debugf(f, "Successfully created folder '%s' with ID: %d", part, *parentID)
 		}
 	}
 
+	fs.Debugf(f, "Mkdir completed successfully")
 	return nil
 }
 
@@ -636,26 +677,51 @@ func (f *Fs) createDir(ctx context.Context, name string, parentID *int) (*int, e
 
 // Rmdir removes the directory if empty
 func (f *Fs) Rmdir(ctx context.Context, dir string) error {
-	parentID, err := f.getParentID(ctx, dir)
+	fs.Debugf(f, "Rmdir called with dir: '%s'", dir)
+
+	// Resolve directory relative to filesystem root
+	targetDir := dir
+	if dir == "" && f.root != "" {
+		targetDir = f.root
+	} else if dir != "" && f.root != "" {
+		targetDir = path.Join(f.root, dir)
+	}
+
+	fs.Debugf(f, "Rmdir: dir='%s', targetDir='%s', f.root='%s'", dir, targetDir, f.root)
+
+	// Don't allow removing the absolute root
+	if targetDir == "" || targetDir == "/" {
+		fs.Debugf(f, "Attempting to remove root directory - not allowed")
+		return fmt.Errorf("cannot remove root directory")
+	}
+
+	parentID, err := f.getParentID(ctx, targetDir)
 	if err != nil {
+		fs.Debugf(f, "Rmdir: getParentID failed for '%s': %v", targetDir, err)
 		return err
 	}
 
 	if parentID == nil {
+		fs.Debugf(f, "Rmdir: parentID is nil, this means we're trying to remove root")
 		return fmt.Errorf("cannot remove root directory")
 	}
+
+	fs.Debugf(f, "Rmdir: checking if directory with ID %d is empty", *parentID)
 
 	// Check if directory is empty
 	entries, err := f.listAll(ctx, parentID)
 	if err != nil {
+		fs.Debugf(f, "Rmdir: failed to list entries in directory: %v", err)
 		return err
 	}
 
 	if len(entries) > 0 {
+		fs.Debugf(f, "Rmdir: directory not empty, contains %d entries", len(entries))
 		return fs.ErrorDirectoryNotEmpty
 	}
 
 	// Delete the directory
+	fs.Debugf(f, "Rmdir: deleting directory with ID %d", *parentID)
 	return f.deleteEntry(ctx, []string{strconv.Itoa(*parentID)}, false)
 }
 

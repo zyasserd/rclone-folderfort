@@ -85,8 +85,16 @@ func (o *Object) readMetaData(ctx context.Context) error {
 	if dir == "." {
 		dir = ""
 	}
-	
-	parentID, err := o.fs.getParentID(ctx, dir)
+
+	// Resolve directory relative to filesystem root
+	targetDir := dir
+	if dir == "" && o.fs.root != "" {
+		targetDir = o.fs.root
+	} else if dir != "" && o.fs.root != "" {
+		targetDir = path.Join(o.fs.root, dir)
+	}
+
+	parentID, err := o.fs.getParentID(ctx, targetDir)
 	if err != nil {
 		return err
 	}
@@ -137,7 +145,7 @@ func (o *Object) Open(ctx context.Context, options ...fs.OpenOption) (io.ReadClo
 	// Handle range requests
 	headers := make(map[string]string)
 	var start, end int64 = 0, -1
-	
+
 	for _, option := range options {
 		switch x := option.(type) {
 		case *fs.SeekOption:

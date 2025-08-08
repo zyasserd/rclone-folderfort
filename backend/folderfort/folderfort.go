@@ -157,7 +157,7 @@ func NewFs(ctx context.Context, name, root string, m configmap.Mapper) (fs.Fs, e
 		opt:       *opt,
 		srv:       rest.NewClient(client).SetRoot(opt.URL + "/api/v1"),
 		pacer:     fs.NewPacer(ctx, pacer.NewDefault(pacer.MinSleep(minSleep), pacer.MaxSleep(maxSleep), pacer.DecayConstant(decayConstant))),
-		precision: time.Second,
+		precision: fs.ModTimeNotSupported, // folderfort doesn't support precision
 	}
 
 	// Set authorization header

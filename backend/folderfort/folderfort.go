@@ -327,6 +327,75 @@ func (f *Fs) getParentID(ctx context.Context, dirPath string) (*int, error) {
 	return parentID, nil
 }
 
+// getOrCreateParentID gets the parent folder ID for a given path, creating missing directories
+func (f *Fs) getOrCreateParentID(ctx context.Context, dirPath string) (*int, error) {
+	fs.Debugf(f, "getOrCreateParentID called with dirPath: '%s'", dirPath)
+
+	if dirPath == "" || dirPath == "/" {
+		fs.Debugf(f, "Returning nil for root directory")
+		return nil, nil // root directory
+	}
+
+	// Split the standard path into parts first
+	parts := strings.Split(strings.Trim(dirPath, "/"), "/")
+	fs.Debugf(f, "Split dirPath into parts: %v", parts)
+	var parentID *int
+
+	// Navigate through each part of the path, creating if needed
+	for i, part := range parts {
+		if part == "" {
+			continue
+		}
+
+		fs.Debugf(f, "Processing path part %d: '%s', current parentID: %v", i, part, parentID)
+
+		// Pad first, then encode
+		paddedPart := f.ensureMinLength(part)
+		encodedPart := f.opt.Enc.FromStandardName(paddedPart)
+
+		fs.Debugf(f, "Part: '%s' -> padded: '%s' -> encoded: '%s'", part, paddedPart, encodedPart)
+
+		// List entries in current directory to find the next part
+		entries, err := f.listAll(ctx, parentID)
+		if err != nil {
+			fs.Debugf(f, "Error listing entries for parentID %v: %v", parentID, err)
+			return nil, err
+		}
+
+		fs.Debugf(f, "Found %d entries in directory with parentID %v", len(entries), parentID)
+
+		found := false
+		for _, entry := range entries {
+			// Decode the entry name from the backend for debugging
+			decodedEntryName := f.restoreMinLength(f.opt.Enc.ToStandardName(entry.Name))
+			fs.Debugf(f, "Checking entry: name='%s' (decoded='%s'), type='%s', id=%d, comparing with encodedPart='%s'",
+				entry.Name, decodedEntryName, entry.Type, entry.ID, encodedPart)
+
+			if entry.Name == encodedPart && entry.Type == "folder" {
+				parentID = &entry.ID
+				found = true
+				fs.Debugf(f, "Found matching folder '%s' with ID: %d", encodedPart, entry.ID)
+				break
+			}
+		}
+
+		if !found {
+			// Create the missing directory
+			fs.Debugf(f, "Creating missing folder '%s' with parentID: %v", encodedPart, parentID)
+			newParentID, err := f.createDir(ctx, encodedPart, parentID)
+			if err != nil {
+				fs.Debugf(f, "Failed to create folder '%s': %v", encodedPart, err)
+				return nil, fmt.Errorf("failed to create directory '%s': %w", part, err)
+			}
+			parentID = newParentID
+			fs.Debugf(f, "Successfully created folder '%s' with ID: %d", encodedPart, *parentID)
+		}
+	}
+
+	fs.Debugf(f, "Final parentID: %v", parentID)
+	return parentID, nil
+}
+
 // listAll lists all files and directories in the given parent directory
 func (f *Fs) listAll(ctx context.Context, parentID *int) ([]api.FileEntry, error) {
 	opts := rest.Opts{
@@ -533,7 +602,8 @@ func (f *Fs) PutUnchecked(ctx context.Context, in io.Reader, src fs.ObjectInfo, 
 
 	fs.Debugf(f, "Upload target: remote='%s', dir='%s', targetDir='%s', fileName='%s'", remote, dir, targetDir, fileName)
 
-	parentID, err := f.getParentID(ctx, targetDir)
+	// Get parent ID, creating missing directories if needed
+	parentID, err := f.getOrCreateParentID(ctx, targetDir)
 	if err != nil {
 		return nil, err
 	}

@@ -21,5 +21,27 @@ func TestIntegration(t *testing.T) {
 		ChunkedUpload: fstests.ChunkedUploadConfig{
 			MinChunkSize: 5 * fs.Mebi, // FolderFort S3 multipart has a minimum of 5MB
 		},
+
+		// TODO: make sure that they are all actually unimplementable
+		// Skip unimplemented Fs methods
+		UnimplementableFsMethods: []string{
+			"Command",         // No custom commands
+			"OpenWriterAt",    // No WriteAt support
+			"OpenChunkWriter", // No chunk writer
+			"ChangeNotify",    // No change notifications
+			"PutStream",       // No stream upload (regular upload only)
+			"CleanUp",         // No cleanup functionality
+			"UserInfo",        // No user info
+			"Disconnect",      // No disconnect needed
+			"MergeDirs",       // No merge directories
+			"DirSetModTime",   // No directory modtime support
+		},
+		// Skip unimplemented Object methods
+		UnimplementableObjectMethods: []string{
+			"SetModTime", // No modtime setting support
+			"GetTier",    // No storage tiers
+			"SetTier",    // No storage tiers
+			"ID",         // No unique object IDs exposed
+		},
 	})
 }

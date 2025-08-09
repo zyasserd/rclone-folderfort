@@ -158,10 +158,20 @@ func (o *Object) Open(ctx context.Context, options ...fs.OpenOption) (io.ReadClo
 			start = x.Offset
 		case *fs.RangeOption:
 			if x.Start >= 0 {
+				// Normal range: Start=100, End=-1 means "from offset 100 to end"
+				// Normal range: Start=100, End=200 means "from offset 100 to 200"
 				start = x.Start
 				if x.End >= 0 {
 					end = x.End
 				}
+			} else if x.Start == -1 && x.End >= 0 {
+				// Suffix range: Start=-1, End=100 means "last 100 bytes"
+				// Calculate the start offset: fileSize - x.End
+				start = o.size - x.End
+				if start < 0 {
+					start = 0
+				}
+				end = o.size - 1
 			}
 		}
 	}
@@ -171,6 +181,7 @@ func (o *Object) Open(ctx context.Context, options ...fs.OpenOption) (io.ReadClo
 			end = o.size - 1
 		}
 		headers["Range"] = fmt.Sprintf("bytes=%d-%d", start, end)
+		fs.Debugf(o, "Setting Range header: bytes=%d-%d for file size %d", start, end, o.size)
 	}
 
 	if len(headers) > 0 {

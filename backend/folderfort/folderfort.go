@@ -35,6 +35,10 @@ const (
 	// FolderFort name length requirements
 	minNameLength = 3   // FolderFort requires at least 3 characters
 	paddingChar   = " " // Use space for padding, then encode with EncodeRightSpace
+
+	// Default configuration values
+	defaultChunkSize         = 32 * 1024 * 1024
+	defaultUploadConcurrency = 16
 )
 
 // Register with Fs
@@ -59,14 +63,14 @@ func init() {
 			Advanced: true,
 		}, {
 			Name: "chunk_size",
-			Help: `Upload chunk size. Must be a power of 2 >= 256k.
+			Help: `Upload chunk size. Must be at least 5MB.
 
 Any files larger than this will be uploaded in chunks of this size.
-The chunk size must be a power of 2 and at least 256k. Making it larger
-will reduce the number of API calls needed to upload a file, but will use
-more memory. The default is usually a good choice.
+The chunk size must be at least 5MB. Making it larger will reduce the 
+number of API calls needed to upload a file, but will use more memory. 
+The default is usually a good choice.
 `,
-			Default:  fs.SizeSuffix(50 * 1024 * 1024), // 50MB default chunk size
+			Default:  fs.SizeSuffix(defaultChunkSize),
 			Advanced: true,
 		}, {
 			Name: "upload_concurrency",
@@ -75,13 +79,13 @@ more memory. The default is usually a good choice.
 This is the number of chunks of the same file that are uploaded
 concurrently for chunked uploads.
 
-NB if you set this to > 1 then the checksums of chunks will be
-incorrect. This speeds up transfers substantially though.
+Increasing this value can significantly speed up transfers of large files,
+especially over high-speed connections where bandwidth isn't fully utilized.
 
 If you are uploading small numbers of large files over high speed links
 and these uploads do not fully utilize your bandwidth, then increasing
 this may help to speed up the transfers.`,
-			Default:  1,
+			Default:  defaultUploadConcurrency,
 			Advanced: true,
 		}, {
 			Name:     config.ConfigEncoding,

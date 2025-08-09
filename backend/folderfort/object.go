@@ -198,8 +198,15 @@ func (o *Object) Update(ctx context.Context, in io.Reader, src fs.ObjectInfo, op
 		return fmt.Errorf("failed to remove old object: %w", err)
 	}
 
-	// Create new object
-	newObj, err := o.fs.PutUnchecked(ctx, in, src, options...)
+	// Create a wrapper ObjectInfo that uses this object's remote path
+	// but the source's other properties (size, modtime, etc.)
+	updateSrc := &updateObjectInfo{
+		remote:  o.remote,  // Use the current object's path
+		src:     src,       // Delegate other calls to the source
+	}
+
+	// Create new object at the same path
+	newObj, err := o.fs.PutUnchecked(ctx, in, updateSrc, options...)
 	if err != nil {
 		return err
 	}
@@ -217,6 +224,20 @@ func (o *Object) Update(ctx context.Context, in io.Reader, src fs.ObjectInfo, op
 
 	return nil
 }
+
+// updateObjectInfo wraps an ObjectInfo to override the Remote() method
+type updateObjectInfo struct {
+	remote string
+	src    fs.ObjectInfo
+}
+
+func (u *updateObjectInfo) Remote() string              { return u.remote }
+func (u *updateObjectInfo) ModTime(ctx context.Context) time.Time { return u.src.ModTime(ctx) }
+func (u *updateObjectInfo) Size() int64                { return u.src.Size() }
+func (u *updateObjectInfo) Fs() fs.Info                { return u.src.Fs() }
+func (u *updateObjectInfo) Hash(ctx context.Context, t hash.Type) (string, error) { return u.src.Hash(ctx, t) }
+func (u *updateObjectInfo) Storable() bool             { return u.src.Storable() }
+func (u *updateObjectInfo) String() string             { return u.remote }
 
 // Remove this object
 func (o *Object) Remove(ctx context.Context) error {

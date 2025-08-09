@@ -141,6 +141,12 @@ type DeleteEntriesRequest struct {
 	DeleteForever bool  `json:"deleteForever"`
 }
 
+// CopyEntriesRequest is used to duplicate entries
+type CopyEntriesRequest struct {
+	EntryIDs      []int `json:"entryIds"`
+	DestinationID *int  `json:"destinationId"`
+}
+
 type RestoreEntriesRequest struct {
 	EntryIDs []int `json:"entryIds"`
 }

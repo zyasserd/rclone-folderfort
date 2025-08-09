@@ -935,6 +935,433 @@ func (f *Fs) deleteEntry(ctx context.Context, entryIDs []string, deleteForever b
 	return nil
 }
 
+// Move src to this remote using server-side move operations.
+//
+// This is stored with the remote path given.
+//
+// It returns the destination Object and a possible error.
+//
+// Will only be called if src.Fs().Name() == f.Name().
+//
+// If it isn't possible then return fs.ErrorCantMove
+func (f *Fs) Move(ctx context.Context, src fs.Object, remote string) (fs.Object, error) {
+	srcObj, ok := src.(*Object)
+	if !ok {
+		fs.Debugf(f, "Can't move - not same remote type")
+		return nil, fs.ErrorCantMove
+	}
+
+	// Check if it's just a rename (same parent directory)
+	srcDir, srcName := path.Split(src.Remote())
+	dstDir, dstName := path.Split(remote)
+
+	// Resolve paths relative to filesystem root
+	srcTargetDir := srcDir
+	if srcDir == "" && f.root != "" {
+		srcTargetDir = f.root
+	} else if srcDir != "" && f.root != "" {
+		srcTargetDir = path.Join(f.root, srcDir)
+	}
+	srcTargetDir = strings.TrimSuffix(srcTargetDir, "/")
+
+	dstTargetDir := dstDir
+	if dstDir == "" && f.root != "" {
+		dstTargetDir = f.root
+	} else if dstDir != "" && f.root != "" {
+		dstTargetDir = path.Join(f.root, dstDir)
+	}
+	dstTargetDir = strings.TrimSuffix(dstTargetDir, "/")
+
+	fs.Debugf(f, "Move: src='%s' dst='%s', srcDir='%s', dstDir='%s'", src.Remote(), remote, srcTargetDir, dstTargetDir)
+
+	if srcTargetDir == dstTargetDir && srcName != dstName {
+		// Same directory, different name - this is a rename
+		return f.renameObject(ctx, srcObj, dstName)
+	}
+
+	// Different directory - this is a move
+	return f.moveObject(ctx, srcObj, remote)
+}
+
+// Copy src to this remote using server-side copy operations.
+//
+// This is stored with the remote path given.
+//
+// It returns the destination Object and a possible error.
+//
+// Will only be called if src.Fs().Name() == f.Name().
+//
+// If it isn't possible then return fs.ErrorCantCopy
+func (f *Fs) Copy(ctx context.Context, src fs.Object, remote string) (fs.Object, error) {
+	srcObj, ok := src.(*Object)
+	if !ok {
+		fs.Debugf(f, "Can't copy - not same remote type")
+		return nil, fs.ErrorCantCopy
+	}
+
+	return f.copyObject(ctx, srcObj, remote)
+}
+
+// DirMove moves src, srcRemote to this remote at dstRemote
+// using server-side move operations.
+//
+// Will only be called if src.Name() == f.Name()
+//
+// If it isn't possible then return fs.ErrorCantDirMove
+//
+// If destination exists then return fs.ErrorDirExists
+func (f *Fs) DirMove(ctx context.Context, src fs.Fs, srcRemote, dstRemote string) error {
+	srcFs, ok := src.(*Fs)
+	if !ok {
+		fs.Debugf(f, "Can't move directory - not same remote type")
+		return fs.ErrorCantDirMove
+	}
+
+	// Resolve source path
+	srcTargetDir := srcRemote
+	if srcRemote == "" && srcFs.root != "" {
+		srcTargetDir = srcFs.root
+	} else if srcRemote != "" && srcFs.root != "" {
+		srcTargetDir = path.Join(srcFs.root, srcRemote)
+	}
+
+	// Resolve destination path
+	dstTargetDir := dstRemote
+	if dstRemote == "" && f.root != "" {
+		dstTargetDir = f.root
+	} else if dstRemote != "" && f.root != "" {
+		dstTargetDir = path.Join(f.root, dstRemote)
+	}
+
+	fs.Debugf(f, "DirMove: srcRemote='%s' dstRemote='%s', srcTargetDir='%s', dstTargetDir='%s'", srcRemote, dstRemote, srcTargetDir, dstTargetDir)
+
+	// Get source directory ID
+	srcParentID, err := srcFs.getParentID(ctx, srcTargetDir)
+	if err != nil {
+		fs.Debugf(f, "DirMove: source directory not found: %v", err)
+		return fs.ErrorDirNotFound
+	}
+
+	if srcParentID == nil {
+		fs.Debugf(f, "DirMove: cannot move root directory")
+		return fs.ErrorCantDirMove
+	}
+
+	// Check if destination already exists
+	dstParentID, err := f.getParentID(ctx, dstTargetDir)
+	if err == nil && dstParentID != nil {
+		fs.Debugf(f, "DirMove: destination directory already exists")
+		return fs.ErrorDirExists
+	}
+
+	// Get destination parent ID
+	dstParentDir := path.Dir(dstTargetDir)
+	if dstParentDir == "." {
+		dstParentDir = ""
+	}
+
+	var dstParent *int
+	if dstParentDir != "" {
+		dstParent, err = f.getOrCreateParentID(ctx, dstParentDir)
+		if err != nil {
+			return fmt.Errorf("failed to get destination parent: %w", err)
+		}
+	}
+
+	// Move the directory
+	request := api.MoveEntriesRequest{
+		EntryIDs:      []int{*srcParentID},
+		DestinationID: dstParent,
+	}
+
+	opts := rest.Opts{
+		Method: "POST",
+		Path:   "/file-entries/move",
+	}
+
+	fs.Debugf(f, "DirMove: moving directory ID %d to parent %v", *srcParentID, dstParent)
+
+	err = f.pacer.Call(func() (bool, error) {
+		resp, err := f.srv.CallJSON(ctx, &opts, &request, nil)
+		return shouldRetry(ctx, resp, err)
+	})
+	if err != nil {
+		return fmt.Errorf("failed to move directory: %w", err)
+	}
+
+	// If we also need to rename the directory
+	dstName := path.Base(dstTargetDir)
+	srcName := path.Base(srcTargetDir)
+	if dstName != srcName {
+		// Encode the new name
+		encodedDstName := f.opt.Enc.FromStandardName(f.ensureMinLength(dstName))
+
+		updateRequest := api.UpdateEntryRequest{
+			Name: encodedDstName,
+		}
+
+		updateOpts := rest.Opts{
+			Method: "PUT",
+			Path:   fmt.Sprintf("/file-entries/%d", *srcParentID),
+		}
+
+		fs.Debugf(f, "DirMove: renaming directory to '%s'", encodedDstName)
+
+		err = f.pacer.Call(func() (bool, error) {
+			resp, err := f.srv.CallJSON(ctx, &updateOpts, &updateRequest, nil)
+			return shouldRetry(ctx, resp, err)
+		})
+		if err != nil {
+			return fmt.Errorf("failed to rename moved directory: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// renameObject renames an object within the same directory
+func (f *Fs) renameObject(ctx context.Context, src *Object, newName string) (fs.Object, error) {
+	// Encode the new name
+	encodedNewName := f.opt.Enc.FromStandardName(f.ensureMinLength(newName))
+
+	request := api.UpdateEntryRequest{
+		Name: encodedNewName,
+	}
+
+	opts := rest.Opts{
+		Method: "PUT",
+		Path:   fmt.Sprintf("/file-entries/%d", src.id),
+	}
+
+	fs.Debugf(f, "Renaming object %d to '%s'", src.id, encodedNewName)
+
+	err := f.pacer.Call(func() (bool, error) {
+		resp, err := f.srv.CallJSON(ctx, &opts, &request, nil)
+		return shouldRetry(ctx, resp, err)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to rename object: %w", err)
+	}
+
+	// Create new object with updated name
+	newObj := &Object{
+		fs:          f,
+		remote:      path.Join(path.Dir(src.remote), newName),
+		hasMetaData: true,
+		size:        src.size,
+		modTime:     src.modTime,
+		id:          src.id,
+		parentID:    src.parentID,
+		mimeType:    src.mimeType,
+		hash:        src.hash,
+		downloadURL: src.downloadURL,
+	}
+
+	return newObj, nil
+}
+
+// moveObject moves an object to a different directory
+func (f *Fs) moveObject(ctx context.Context, src *Object, remote string) (fs.Object, error) {
+	// Get destination directory
+	dir, fileName := path.Split(remote)
+	dir = strings.TrimSuffix(dir, "/")
+
+	targetDir := dir
+	if dir == "" && f.root != "" {
+		targetDir = f.root
+	} else if dir != "" && f.root != "" {
+		targetDir = path.Join(f.root, dir)
+	}
+
+	// Get destination parent ID
+	var dstParentID *int
+	var err error
+	if targetDir != "" {
+		dstParentID, err = f.getOrCreateParentID(ctx, targetDir)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get destination parent: %w", err)
+		}
+	}
+
+	// Move the object
+	request := api.MoveEntriesRequest{
+		EntryIDs:      []int{src.id},
+		DestinationID: dstParentID,
+	}
+
+	opts := rest.Opts{
+		Method: "POST",
+		Path:   "/file-entries/move",
+	}
+
+	fs.Debugf(f, "Moving object %d to parent %v", src.id, dstParentID)
+
+	err = f.pacer.Call(func() (bool, error) {
+		resp, err := f.srv.CallJSON(ctx, &opts, &request, nil)
+		return shouldRetry(ctx, resp, err)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to move object: %w", err)
+	}
+
+	// If filename changed, also rename
+	srcName := path.Base(src.remote)
+	if fileName != srcName {
+		encodedFileName := f.opt.Enc.FromStandardName(f.ensureMinLength(fileName))
+
+		updateRequest := api.UpdateEntryRequest{
+			Name: encodedFileName,
+		}
+
+		updateOpts := rest.Opts{
+			Method: "PUT",
+			Path:   fmt.Sprintf("/file-entries/%d", src.id),
+		}
+
+		fs.Debugf(f, "Renaming moved object to '%s'", encodedFileName)
+
+		err = f.pacer.Call(func() (bool, error) {
+			resp, err := f.srv.CallJSON(ctx, &updateOpts, &updateRequest, nil)
+			return shouldRetry(ctx, resp, err)
+		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to rename moved object: %w", err)
+		}
+	}
+
+	// Create new object with updated path
+	newObj := &Object{
+		fs:          f,
+		remote:      remote,
+		hasMetaData: true,
+		size:        src.size,
+		modTime:     src.modTime,
+		id:          src.id,
+		parentID:    dstParentID,
+		mimeType:    src.mimeType,
+		hash:        src.hash,
+		downloadURL: src.downloadURL,
+	}
+
+	return newObj, nil
+}
+
+// copyObject copies an object using server-side copy
+func (f *Fs) copyObject(ctx context.Context, src *Object, remote string) (fs.Object, error) {
+	// Get destination directory
+	dir, fileName := path.Split(remote)
+	dir = strings.TrimSuffix(dir, "/")
+
+	targetDir := dir
+	if dir == "" && f.root != "" {
+		targetDir = f.root
+	} else if dir != "" && f.root != "" {
+		targetDir = path.Join(f.root, dir)
+	}
+
+	// Get destination parent ID
+	var dstParentID *int
+	var err error
+	if targetDir != "" {
+		dstParentID, err = f.getOrCreateParentID(ctx, targetDir)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get destination parent: %w", err)
+		}
+	}
+
+	// Copy the object - FolderFort will automatically append " - Copy" to the name
+	request := api.CopyEntriesRequest{
+		EntryIDs:      []int{src.id},
+		DestinationID: dstParentID,
+	}
+
+	opts := rest.Opts{
+		Method: "POST",
+		Path:   "/file-entries/duplicate",
+	}
+
+	fs.Debugf(f, "Copying object %d to parent %v", src.id, dstParentID)
+
+	var response interface{}
+	err = f.pacer.Call(func() (bool, error) {
+		resp, err := f.srv.CallJSON(ctx, &opts, &request, &response)
+		return shouldRetry(ctx, resp, err)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to copy object: %w", err)
+	}
+
+	// Find the newly created copy - FolderFort appends " - Copy" to the original name
+	srcName := path.Base(src.remote)
+	expectedCopyName := srcName + " - Copy"
+	encodedExpectedCopyName := f.opt.Enc.FromStandardName(f.ensureMinLength(expectedCopyName))
+
+	// List the destination directory to find the copied file
+	entries, err := f.listAll(ctx, dstParentID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list destination directory after copy: %w", err)
+	}
+
+	var copiedObject *Object
+	for _, entry := range entries {
+		if entry.Name == encodedExpectedCopyName && entry.Type != "folder" {
+			// Found the copied file
+			decodedName := f.restoreMinLength(f.opt.Enc.ToStandardName(entry.Name))
+			copiedRemote := decodedName
+			if dir != "" {
+				copiedRemote = path.Join(dir, decodedName)
+			}
+
+			copiedObject = &Object{
+				fs:          f,
+				remote:      copiedRemote,
+				hasMetaData: true,
+				size:        entry.FileSize,
+				modTime:     entry.UpdatedAt,
+				id:          entry.ID,
+				parentID:    entry.ParentID,
+				mimeType:    entry.Mime,
+				hash:        entry.Hash,
+				downloadURL: entry.URL,
+			}
+			break
+		}
+	}
+
+	if copiedObject == nil {
+		return nil, fmt.Errorf("could not find copied file after duplication")
+	}
+
+	// If the desired filename is different from the auto-generated " - Copy" name, rename it
+	if fileName != expectedCopyName {
+		fs.Debugf(f, "Renaming copied file from '%s' to '%s'", expectedCopyName, fileName)
+
+		encodedFileName := f.opt.Enc.FromStandardName(f.ensureMinLength(fileName))
+
+		updateRequest := api.UpdateEntryRequest{
+			Name: encodedFileName,
+		}
+
+		updateOpts := rest.Opts{
+			Method: "PUT",
+			Path:   fmt.Sprintf("/file-entries/%d", copiedObject.id),
+		}
+
+		err = f.pacer.Call(func() (bool, error) {
+			resp, err := f.srv.CallJSON(ctx, &updateOpts, &updateRequest, nil)
+			return shouldRetry(ctx, resp, err)
+		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to rename copied object: %w", err)
+		}
+
+		// Update the object with the final name
+		copiedObject.remote = remote
+	}
+
+	return copiedObject, nil
+}
+
 // SetUploadChunkSize sets the upload chunk size for testing
 func (f *Fs) SetUploadChunkSize(cs fs.SizeSuffix) (old fs.SizeSuffix, err error) {
 	// Validate chunk size - S3 multipart has a minimum of 5MB except for the last part
@@ -949,6 +1376,9 @@ func (f *Fs) SetUploadChunkSize(cs fs.SizeSuffix) (old fs.SizeSuffix, err error)
 
 // Check the interfaces are satisfied
 var (
-	_ fs.Fs     = (*Fs)(nil)
-	_ fs.Object = (*Object)(nil)
+	_ fs.Fs       = (*Fs)(nil)
+	_ fs.Mover    = (*Fs)(nil)
+	_ fs.Copier   = (*Fs)(nil)
+	_ fs.DirMover = (*Fs)(nil)
+	_ fs.Object   = (*Object)(nil)
 )

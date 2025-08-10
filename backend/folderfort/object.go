@@ -36,10 +36,8 @@ func (o *Object) Remote() string {
 
 // Hash returns the hash of an object returning a lowercase hex string
 func (o *Object) Hash(ctx context.Context, t hash.Type) (string, error) {
-	if t != hash.MD5 {
-		return "", hash.ErrUnsupported
-	}
-	return o.hash, nil
+	// FolderFort doesn't provide real cryptographic hashes
+	return "", hash.ErrUnsupported
 }
 
 // Size returns the size of an object in bytes

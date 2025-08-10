@@ -285,7 +285,7 @@ func (f *Fs) Precision() time.Duration {
 
 // Hashes returns the supported hash sets.
 func (f *Fs) Hashes() hash.Set {
-	// FolderFort doesn't seem to provide file hashes in the API
+	// FolderFort doesn't provide real cryptographic hashes - only internal identifiers
 	return hash.Set(hash.None)
 }
 

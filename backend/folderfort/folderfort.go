@@ -49,6 +49,7 @@ func init() {
 		Name:        "folderfort",
 		Description: "FolderFort Cloud Storage",
 		NewFs:       NewFs,
+		CommandHelp: commandHelp,
 		Options: []fs.Option{{
 			Name:     "url",
 			Help:     "URL of your FolderFort instance (e.g., https://yoursite.com)",
@@ -90,6 +91,16 @@ this may help to speed up the transfers.`,
 			Default:  defaultUploadConcurrency,
 			Advanced: true,
 		}, {
+			Name:     "trashed_only",
+			Help:     "Only show files that are in the trash.",
+			Default:  false,
+			Advanced: true,
+		}, {
+			Name:     "hard_delete",
+			Help:     "Delete files permanently rather than putting them into the trash.",
+			Default:  false,
+			Advanced: true,
+		}, {
 			Name:     config.ConfigEncoding,
 			Help:     config.ConfigEncodingHelp,
 			Advanced: true,
@@ -104,6 +115,37 @@ this may help to speed up the transfers.`,
 	})
 }
 
+// commandHelp describes the various commands available
+var commandHelp = []fs.CommandHelp{
+	{
+		Name:  "list-trash",
+		Short: "List trashed files",
+		Long: `List all files in trash.
+
+The result is a JSON array of objects containing information about 
+each trashed file. Use the "restore" command to restore files from trash.`,
+	},
+	{
+		Name:  "restore",
+		Short: "Restore files from trash",
+		Long: `Restore one or more files from trash.
+
+Provide file IDs as arguments. Multiple IDs can be separated by spaces.
+
+Examples:
+    rclone backend restore remote: 12345
+    rclone backend restore remote: 12345 67890 abcdef`,
+	},
+	{
+		Name:  "cleanup",
+		Short: "Empty the trash",
+		Long: `Permanently delete all files in trash.
+
+This operation cannot be undone. All trashed files will be permanently 
+deleted from the FolderFort storage.`,
+	},
+}
+
 // Options defines the configuration for this backend
 type Options struct {
 	URL               string               `config:"url"`
@@ -111,6 +153,8 @@ type Options struct {
 	WorkspaceID       int                  `config:"workspace_id"`
 	ChunkSize         fs.SizeSuffix        `config:"chunk_size"`
 	UploadConcurrency int                  `config:"upload_concurrency"`
+	TrashedOnly       bool                 `config:"trashed_only"`
+	HardDelete        bool                 `config:"hard_delete"`
 	Enc               encoder.MultiEncoder `config:"encoding"`
 }
 
@@ -183,6 +227,7 @@ func NewFs(ctx context.Context, name, root string, m configmap.Mapper) (fs.Fs, e
 		ReadMimeType:            true,
 		WriteMimeType:           true,
 		Purge:                   f.Purge,
+		CleanUp:                 f.CleanUp,
 	}).Fill(ctx, f)
 
 	// Check if root is actually a file
@@ -422,6 +467,11 @@ func (f *Fs) listAll(ctx context.Context, parentID *int) ([]api.FileEntry, error
 
 	if f.opt.WorkspaceID != 0 {
 		opts.Parameters.Set("workspaceId", strconv.Itoa(f.opt.WorkspaceID))
+	}
+
+	// Add deletedOnly parameter if showing trashed files
+	if f.opt.TrashedOnly {
+		opts.Parameters.Set("deletedOnly", "true")
 	}
 
 	fs.Debugf(f, "API call parameters: %v", opts.Parameters)
@@ -937,7 +987,7 @@ func (f *Fs) Rmdir(ctx context.Context, dir string) error {
 
 	// Delete the directory
 	fs.Debugf(f, "Rmdir: deleting directory with ID %d", *parentID)
-	return f.deleteEntry(ctx, []string{strconv.Itoa(*parentID)}, false)
+	return f.deleteEntry(ctx, []string{strconv.Itoa(*parentID)}, f.opt.HardDelete)
 }
 
 // Purge deletes all the files and directories including the directory itself
@@ -977,7 +1027,7 @@ func (f *Fs) Purge(ctx context.Context, dir string) error {
 
 	// Delete the directory and all its contents (FolderFort does this recursively)
 	fs.Debugf(f, "Purge: deleting directory with ID %d and all its contents", *parentID)
-	return f.deleteEntry(ctx, []string{strconv.Itoa(*parentID)}, false)
+	return f.deleteEntry(ctx, []string{strconv.Itoa(*parentID)}, f.opt.HardDelete)
 }
 
 // deleteEntry deletes entries by ID
@@ -999,7 +1049,7 @@ func (f *Fs) deleteEntry(ctx context.Context, entryIDs []string, deleteForever b
 
 	opts := rest.Opts{
 		Method: "POST",
-		Path:   "/file-entries/delete", // Try a POST method for deletion
+		Path:   "/file-entries/delete",
 	}
 
 	fs.Debugf(f, "Deleting entries: %v, deleteForever: %v", intIDs, deleteForever)
@@ -1454,6 +1504,235 @@ func (f *Fs) SetUploadChunkSize(cs fs.SizeSuffix) (old fs.SizeSuffix, err error)
 	return old, nil
 }
 
+// CleanUp permanently deletes all trashed files/folders
+func (f *Fs) CleanUp(ctx context.Context) error {
+	fs.Debugf(f, "CleanUp: permanently deleting all trashed files")
+
+	// Use the emptyTrash API endpoint
+	opts := rest.Opts{
+		Method: "POST",
+		Path:   "/file-entries/delete",
+	}
+
+	request := api.DeleteEntriesRequest{
+		EntryIDs:   []int{}, // Empty array
+		EmptyTrash: true,    // This is the key parameter
+	}
+
+	var response struct {
+		Status string `json:"status"`
+	}
+
+	err := f.pacer.Call(func() (bool, error) {
+		resp, err := f.srv.CallJSON(ctx, &opts, &request, &response)
+		return shouldRetry(ctx, resp, err)
+	})
+
+	if err != nil {
+		return fmt.Errorf("failed to empty trash: %w", err)
+	}
+
+	fs.Debugf(f, "CleanUp: trash emptied successfully")
+	return nil
+}
+
+// listTrashedFiles lists all files in the trash
+func (f *Fs) listTrashedFiles(ctx context.Context) ([]api.FileEntry, error) {
+	opts := rest.Opts{
+		Method: "GET",
+		Path:   "/drive/file-entries",
+		Parameters: url.Values{
+			"perPage":     {"1000"}, // Get a large number
+			"deletedOnly": {"true"},
+		},
+	}
+
+	if f.opt.WorkspaceID != 0 {
+		opts.Parameters.Set("workspaceId", strconv.Itoa(f.opt.WorkspaceID))
+	}
+
+	fs.Debugf(f, "Listing trashed files with parameters: %v", opts.Parameters)
+
+	var entries []api.FileEntry
+	var result interface{}
+
+	err := f.pacer.Call(func() (bool, error) {
+		resp, err := f.srv.CallJSON(ctx, &opts, nil, &result)
+		return shouldRetry(ctx, resp, err)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to list trashed files: %w", err)
+	}
+
+	// Convert result back to JSON and try to parse
+	resultBytes, err := json.Marshal(result)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal result: %w", err)
+	}
+
+	// Try to parse as direct array first
+	if err := json.Unmarshal(resultBytes, &entries); err == nil {
+		fs.Debugf(f, "Found %d trashed entries", len(entries))
+		return entries, nil
+	}
+
+	// If that fails, try to parse as wrapped response
+	var wrappedResponse api.FileEntriesResponse
+	if err := json.Unmarshal(resultBytes, &wrappedResponse); err != nil {
+		return nil, fmt.Errorf("failed to parse response as wrapped object: %w", err)
+	}
+
+	// Use entries from data field if available, otherwise from entries field
+	if len(wrappedResponse.Data) > 0 {
+		entries = wrappedResponse.Data
+		fs.Debugf(f, "Found %d trashed entries in data field", len(entries))
+	} else {
+		entries = wrappedResponse.Entries
+		fs.Debugf(f, "Found %d trashed entries in entries field", len(entries))
+	}
+
+	return entries, nil
+}
+
+// restoreFromTrash restores files from trash to their original location
+func (f *Fs) restoreFromTrash(ctx context.Context, entryIDs []int) error {
+	request := api.RestoreEntriesRequest{
+		EntryIDs: entryIDs,
+	}
+
+	opts := rest.Opts{
+		Method: "POST",
+		Path:   "/file-entries/restore",
+	}
+
+	fs.Debugf(f, "Restoring entries from trash: %v", entryIDs)
+
+	err := f.pacer.Call(func() (bool, error) {
+		resp, err := f.srv.CallJSON(ctx, &opts, &request, nil)
+		return shouldRetry(ctx, resp, err)
+	})
+	if err != nil {
+		return fmt.Errorf("failed to restore entries from trash: %w", err)
+	}
+
+	return nil
+}
+
+// Command the backend to run a named command
+//
+// The command run is name
+// args may be used to read arguments from
+// opts may be used to read optional arguments from
+//
+// The result should be capable of being JSON encoded
+// If it is a string or a []string it will be shown to the user
+// otherwise it will be JSON encoded and shown to the user like that
+func (f *Fs) Command(ctx context.Context, name string, arg []string, opts map[string]string) (out interface{}, err error) {
+	switch name {
+	case "list-trash":
+		return f.commandListTrash(ctx, arg, opts)
+	case "restore":
+		return f.commandRestore(ctx, arg, opts)
+	case "cleanup":
+		return f.commandCleanup(ctx, arg, opts)
+	default:
+		return nil, fs.ErrorCommandNotFound
+	}
+}
+
+// commandListTrash lists files in trash
+func (f *Fs) commandListTrash(ctx context.Context, arg []string, opts map[string]string) (out interface{}, err error) {
+	entries, err := f.listTrashedFiles(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to a user-friendly format
+	type TrashEntry struct {
+		ID        int       `json:"id"`
+		Name      string    `json:"name"`
+		Type      string    `json:"type"`
+		Size      int64     `json:"size"`
+		DeletedAt time.Time `json:"deleted_at"`
+		Path      string    `json:"original_path"`
+	}
+
+	result := make([]TrashEntry, len(entries))
+	for i, entry := range entries {
+		// Decode the name for display
+		decodedName := f.restoreMinLength(f.opt.Enc.ToStandardName(entry.Name))
+
+		result[i] = TrashEntry{
+			ID:        entry.ID,
+			Name:      decodedName,
+			Type:      entry.Type,
+			Size:      entry.FileSize,
+			DeletedAt: *entry.DeletedAt,
+			Path:      entry.Path,
+		}
+	}
+
+	return result, nil
+}
+
+// commandRestore restores files from trash
+func (f *Fs) commandRestore(ctx context.Context, arg []string, opts map[string]string) (out interface{}, err error) {
+	if len(arg) == 0 {
+		return nil, fmt.Errorf("restore command requires at least one entry ID")
+	}
+
+	entryIDs := make([]int, len(arg))
+	for i, idStr := range arg {
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			return nil, fmt.Errorf("invalid entry ID '%s': %w", idStr, err)
+		}
+		entryIDs[i] = id
+	}
+
+	err = f.restoreFromTrash(ctx, entryIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	return map[string]interface{}{
+		"restored": len(entryIDs),
+		"ids":      entryIDs,
+	}, nil
+}
+
+// commandCleanup permanently deletes all trashed files
+func (f *Fs) commandCleanup(ctx context.Context, arg []string, opts map[string]string) (out interface{}, err error) {
+	// Use the emptyTrash API endpoint
+	optsReq := rest.Opts{
+		Method: "POST",
+		Path:   "/file-entries/delete",
+	}
+
+	request := api.DeleteEntriesRequest{
+		EntryIDs:   []int{}, // Empty array
+		EmptyTrash: true,    // This is the key parameter
+	}
+
+	var response struct {
+		Status string `json:"status"`
+	}
+
+	err = f.pacer.Call(func() (bool, error) {
+		resp, err := f.srv.CallJSON(ctx, &optsReq, &request, &response)
+		return shouldRetry(ctx, resp, err)
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to empty trash: %w", err)
+	}
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Trash emptied successfully",
+	}, nil
+}
+
 // MimeType delegates to the wrapped src if it implements MimeTyper
 func (u *updateObjectInfo) MimeType(ctx context.Context) string {
 	if mimeTyper, ok := u.src.(fs.MimeTyper); ok {
@@ -1464,10 +1743,12 @@ func (u *updateObjectInfo) MimeType(ctx context.Context) string {
 
 // Check the interfaces are satisfied
 var (
-	_ fs.Fs       = (*Fs)(nil)
-	_ fs.Mover    = (*Fs)(nil)
-	_ fs.Copier   = (*Fs)(nil)
-	_ fs.DirMover = (*Fs)(nil)
-	_ fs.Purger   = (*Fs)(nil)
-	_ fs.Object   = (*Object)(nil)
+	_ fs.Fs         = (*Fs)(nil)
+	_ fs.Mover      = (*Fs)(nil)
+	_ fs.Copier     = (*Fs)(nil)
+	_ fs.DirMover   = (*Fs)(nil)
+	_ fs.Purger     = (*Fs)(nil)
+	_ fs.CleanUpper = (*Fs)(nil)
+	_ fs.Commander  = (*Fs)(nil)
+	_ fs.Object     = (*Object)(nil)
 )

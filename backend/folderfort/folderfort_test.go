@@ -25,12 +25,12 @@ func TestIntegration(t *testing.T) {
 		// TODO: make sure that they are all actually unimplementable
 		// Skip unimplemented Fs methods
 		UnimplementableFsMethods: []string{
+			"ChangeNotify", // No change notifications
+
 			"Command",         // No custom commands
 			"OpenWriterAt",    // No WriteAt support
 			"OpenChunkWriter", // No chunk writer
-			"ChangeNotify",    // No change notifications
 			"PutStream",       // No stream upload (regular upload only)
-			"CleanUp",         // No cleanup functionality
 			"UserInfo",        // No user info
 			"Disconnect",      // No disconnect needed
 			"MergeDirs",       // No merge directories

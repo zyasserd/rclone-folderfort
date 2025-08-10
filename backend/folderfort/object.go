@@ -212,8 +212,8 @@ func (o *Object) Update(ctx context.Context, in io.Reader, src fs.ObjectInfo, op
 	// Create a wrapper ObjectInfo that uses this object's remote path
 	// but the source's other properties (size, modtime, etc.)
 	updateSrc := &updateObjectInfo{
-		remote:  o.remote,  // Use the current object's path
-		src:     src,       // Delegate other calls to the source
+		remote: o.remote, // Use the current object's path
+		src:    src,      // Delegate other calls to the source
 	}
 
 	// Create new object at the same path
@@ -242,13 +242,15 @@ type updateObjectInfo struct {
 	src    fs.ObjectInfo
 }
 
-func (u *updateObjectInfo) Remote() string              { return u.remote }
+func (u *updateObjectInfo) Remote() string                        { return u.remote }
 func (u *updateObjectInfo) ModTime(ctx context.Context) time.Time { return u.src.ModTime(ctx) }
-func (u *updateObjectInfo) Size() int64                { return u.src.Size() }
-func (u *updateObjectInfo) Fs() fs.Info                { return u.src.Fs() }
-func (u *updateObjectInfo) Hash(ctx context.Context, t hash.Type) (string, error) { return u.src.Hash(ctx, t) }
-func (u *updateObjectInfo) Storable() bool             { return u.src.Storable() }
-func (u *updateObjectInfo) String() string             { return u.remote }
+func (u *updateObjectInfo) Size() int64                           { return u.src.Size() }
+func (u *updateObjectInfo) Fs() fs.Info                           { return u.src.Fs() }
+func (u *updateObjectInfo) Hash(ctx context.Context, t hash.Type) (string, error) {
+	return u.src.Hash(ctx, t)
+}
+func (u *updateObjectInfo) Storable() bool { return u.src.Storable() }
+func (u *updateObjectInfo) String() string { return u.remote }
 
 // Remove this object
 func (o *Object) Remove(ctx context.Context) error {
@@ -256,7 +258,7 @@ func (o *Object) Remove(ctx context.Context) error {
 		return err
 	}
 
-	return o.fs.deleteEntry(ctx, []string{strconv.Itoa(o.id)}, false)
+	return o.fs.deleteEntry(ctx, []string{strconv.Itoa(o.id)}, o.fs.opt.HardDelete)
 }
 
 // MimeType of an Object if known, "" otherwise

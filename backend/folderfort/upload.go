@@ -4,7 +4,6 @@ package folderfort
 import (
 	"bytes"
 	"context"
-	"crypto/rand"
 	"fmt"
 	"io"
 	"net/http"
@@ -31,6 +30,7 @@ type multipartUpload struct {
 	options   []fs.OpenOption
 	uploadID  string
 	key       string
+	mimeType  string
 }
 
 // newMultipartUpload creates a new S3 multipart upload
@@ -114,9 +114,13 @@ func (mu *multipartUpload) startMultipartUpload(ctx context.Context) error {
 		parentID = *mu.parentID
 	}
 
+	// Get MIME type from rclone's detection system
+	mimeType := fs.MimeType(ctx, mu.src)
+	mu.mimeType = mimeType // Store for use in uploadPart
+
 	request := api.CreateMultipartUploadRequest{
-		Filename:     encodedFileName,            // Use encoded filename
-		Mime:         "application/octet-stream", // Default MIME type
+		Filename:     encodedFileName, // Use encoded filename
+		Mime:         mimeType,        // Use detected MIME type
 		Size:         mu.src.Size(),
 		Extension:    ext,
 		WorkspaceID:  mu.f.opt.WorkspaceID,
@@ -290,7 +294,7 @@ func (mu *multipartUpload) uploadPart(ctx context.Context, signedURL string, dat
 
 	// Set Content-Length explicitly
 	req.Header.Set("Content-Length", strconv.FormatInt(dataSize, 10))
-	req.Header.Set("Content-Type", "application/octet-stream")
+	req.Header.Set("Content-Type", mu.mimeType)
 	req.ContentLength = dataSize // Also set the ContentLength field directly
 
 	fs.Debugf(mu.f, "Request headers: %v, ContentLength: %d", req.Header, req.ContentLength)
@@ -388,7 +392,7 @@ func (mu *multipartUpload) createS3Entry(ctx context.Context) (*api.FileEntry, e
 		ParentID:        parentIDStr,
 		RelativePath:    "",
 		Disk:            "uploads",
-		ClientMime:      "application/octet-stream",
+		ClientMime:      mu.mimeType,     // Use stored MIME type
 		ClientName:      encodedFileName, // Use encoded filename
 		Filename:        filename,
 		Size:            mu.src.Size(),
@@ -410,11 +414,4 @@ func (mu *multipartUpload) createS3Entry(ctx context.Context) (*api.FileEntry, e
 	}
 
 	return &response.FileEntry, nil
-}
-
-// generateUUID generates a proper UUID for uploads
-func generateUUID() string {
-	b := make([]byte, 16)
-	rand.Read(b)
-	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
 }

@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"net/url"
 	"path"
 	"strconv"
@@ -621,7 +623,7 @@ func (f *Fs) PutUnchecked(ctx context.Context, in io.Reader, src fs.ObjectInfo, 
 
 	// Upload the file normally
 	modTime := src.ModTime(ctx)
-	o, err := f.putUnchecked(ctx, in, fileName, encodedFileName, parentID, size, modTime, options...)
+	o, err := f.putUnchecked(ctx, in, src, fileName, encodedFileName, parentID, size, modTime, options...)
 	if err != nil {
 		return nil, err
 	}
@@ -629,11 +631,14 @@ func (f *Fs) PutUnchecked(ctx context.Context, in io.Reader, src fs.ObjectInfo, 
 }
 
 // putUnchecked uploads the object with the given filename and parent
-func (f *Fs) putUnchecked(ctx context.Context, in io.Reader, originalFileName, encodedFileName string, parentID *int, size int64, modTime time.Time, options ...fs.OpenOption) (*Object, error) {
-	// Create multipart form - use encoded filename for the API
-	formReader, contentType, _, err := rest.MultipartUpload(ctx, in, nil, "file", encodedFileName)
+func (f *Fs) putUnchecked(ctx context.Context, in io.Reader, src fs.ObjectInfo, originalFileName, encodedFileName string, parentID *int, size int64, modTime time.Time, options ...fs.OpenOption) (*Object, error) {
+	// Get MIME type from rclone's detection system
+	mimeType := fs.MimeType(ctx, src)
+
+	// Create custom multipart form with proper MIME type
+	formReader, contentType, err := f.createMultipartForm(ctx, in, encodedFileName, mimeType)
 	if err != nil {
-		return nil, fmt.Errorf("failed to make multipart upload: %w", err)
+		return nil, fmt.Errorf("failed to create multipart form: %w", err)
 	}
 
 	opts := rest.Opts{
@@ -670,6 +675,40 @@ func (f *Fs) putUnchecked(ctx context.Context, in io.Reader, originalFileName, e
 		return nil, err
 	}
 	return obj.(*Object), nil
+}
+
+// createMultipartForm creates a custom multipart form with proper MIME type
+func (f *Fs) createMultipartForm(ctx context.Context, in io.Reader, fileName string, mimeType string) (io.ReadCloser, string, error) {
+	bodyReader, bodyWriter := io.Pipe()
+	writer := multipart.NewWriter(bodyWriter)
+	contentType := writer.FormDataContentType()
+
+	go func() {
+		defer bodyWriter.Close()
+		defer writer.Close()
+
+		// Create form file with specific MIME type
+		h := make(textproto.MIMEHeader)
+		// Escape quotes in filename for proper Content-Disposition header
+		escapedFileName := strings.ReplaceAll(fileName, `"`, `\"`)
+		h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file"; filename="%s"`, escapedFileName))
+		h.Set("Content-Type", mimeType)
+
+		part, err := writer.CreatePart(h)
+		if err != nil {
+			bodyWriter.CloseWithError(err)
+			return
+		}
+
+		// Copy file content to the form part
+		_, err = io.Copy(part, in)
+		if err != nil {
+			bodyWriter.CloseWithError(err)
+			return
+		}
+	}()
+
+	return bodyReader, contentType, nil
 }
 
 // Mkdir creates the directory if it doesn't exist
@@ -1372,6 +1411,14 @@ func (f *Fs) SetUploadChunkSize(cs fs.SizeSuffix) (old fs.SizeSuffix, err error)
 
 	old, f.opt.ChunkSize = f.opt.ChunkSize, cs
 	return old, nil
+}
+
+// MimeType delegates to the wrapped src if it implements MimeTyper
+func (u *updateObjectInfo) MimeType(ctx context.Context) string {
+	if mimeTyper, ok := u.src.(fs.MimeTyper); ok {
+		return mimeTyper.MimeType(ctx)
+	}
+	return ""
 }
 
 // Check the interfaces are satisfied

@@ -182,6 +182,7 @@ func NewFs(ctx context.Context, name, root string, m configmap.Mapper) (fs.Fs, e
 		CanHaveEmptyDirectories: true,
 		ReadMimeType:            true,
 		WriteMimeType:           true,
+		Purge:                   f.Purge,
 	}).Fill(ctx, f)
 
 	// Check if root is actually a file
@@ -939,6 +940,46 @@ func (f *Fs) Rmdir(ctx context.Context, dir string) error {
 	return f.deleteEntry(ctx, []string{strconv.Itoa(*parentID)}, false)
 }
 
+// Purge deletes all the files and directories including the directory itself
+//
+// Optional interface: Only implement this if you have a way of
+// deleting all the files quicker than just running Remove() on the
+// result of List()
+func (f *Fs) Purge(ctx context.Context, dir string) error {
+	fs.Debugf(f, "Purge called with dir: '%s'", dir)
+
+	// Resolve directory relative to filesystem root
+	targetDir := dir
+	if dir == "" && f.root != "" {
+		targetDir = f.root
+	} else if dir != "" && f.root != "" {
+		targetDir = path.Join(f.root, dir)
+	}
+
+	fs.Debugf(f, "Purge: dir='%s', targetDir='%s', f.root='%s'", dir, targetDir, f.root)
+
+	// Don't allow purging the absolute root
+	if targetDir == "" || targetDir == "/" {
+		fs.Debugf(f, "Attempting to purge root directory - not allowed")
+		return fmt.Errorf("cannot purge root directory")
+	}
+
+	parentID, err := f.getParentID(ctx, targetDir)
+	if err != nil {
+		fs.Debugf(f, "Purge: getParentID failed for '%s': %v", targetDir, err)
+		return err
+	}
+
+	if parentID == nil {
+		fs.Debugf(f, "Purge: parentID is nil, this means we're trying to purge root")
+		return fmt.Errorf("cannot purge root directory")
+	}
+
+	// Delete the directory and all its contents (FolderFort does this recursively)
+	fs.Debugf(f, "Purge: deleting directory with ID %d and all its contents", *parentID)
+	return f.deleteEntry(ctx, []string{strconv.Itoa(*parentID)}, false)
+}
+
 // deleteEntry deletes entries by ID
 func (f *Fs) deleteEntry(ctx context.Context, entryIDs []string, deleteForever bool) error {
 	// Convert string IDs to integers
@@ -1427,5 +1468,6 @@ var (
 	_ fs.Mover    = (*Fs)(nil)
 	_ fs.Copier   = (*Fs)(nil)
 	_ fs.DirMover = (*Fs)(nil)
+	_ fs.Purger   = (*Fs)(nil)
 	_ fs.Object   = (*Object)(nil)
 )

@@ -191,6 +191,14 @@ type ErrorResponse struct {
 	Errors  map[string]interface{} `json:"errors,omitempty"`
 }
 
+// SpaceUsageResponse represents the response from space usage API
+type SpaceUsageResponse struct {
+	Status    string    `json:"status"`
+	Used      int64     `json:"used"`
+	Available int64     `json:"available"`
+	SEO       *struct{} `json:"seo"`
+}
+
 // S3 Multipart Upload API types
 
 // CreateMultipartUploadRequest starts a multipart upload

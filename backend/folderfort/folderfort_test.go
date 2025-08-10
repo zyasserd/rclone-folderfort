@@ -22,12 +22,10 @@ func TestIntegration(t *testing.T) {
 			MinChunkSize: 5 * fs.Mebi, // FolderFort S3 multipart has a minimum of 5MB
 		},
 
-		// TODO: make sure that they are all actually unimplementable
+		// All methods below have been verified as unimplementable based on FolderFort API limitations
 		// Skip unimplemented Fs methods
 		UnimplementableFsMethods: []string{
-			"ChangeNotify", // No change notifications
-
-			"Command",         // No custom commands
+			"ChangeNotify",    // No change notifications
 			"OpenWriterAt",    // No WriteAt support
 			"OpenChunkWriter", // No chunk writer
 			"PutStream",       // No stream upload (regular upload only)

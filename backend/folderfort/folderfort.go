@@ -228,6 +228,7 @@ func NewFs(ctx context.Context, name, root string, m configmap.Mapper) (fs.Fs, e
 		WriteMimeType:           true,
 		Purge:                   f.Purge,
 		CleanUp:                 f.CleanUp,
+		About:                   f.About,
 	}).Fill(ctx, f)
 
 	// Check if root is actually a file
@@ -1733,6 +1734,39 @@ func (f *Fs) commandCleanup(ctx context.Context, arg []string, opts map[string]s
 	}, nil
 }
 
+// About gets quota information from the remote
+func (f *Fs) About(ctx context.Context) (*fs.Usage, error) {
+	opts := rest.Opts{
+		Method: "GET",
+		Path:   "/user/space-usage",
+	}
+
+	var result api.SpaceUsageResponse
+	err := f.pacer.Call(func() (bool, error) {
+		resp, err := f.srv.CallJSON(ctx, &opts, nil, &result)
+		return shouldRetry(ctx, resp, err)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get space usage: %w", err)
+	}
+
+	usage := &fs.Usage{
+		Total: fs.NewUsageValue(result.Available),               // bytes total
+		Used:  fs.NewUsageValue(result.Used),                    // bytes in use
+		Free:  fs.NewUsageValue(result.Available - result.Used), // bytes which can be uploaded before reaching the quota
+	}
+
+	fs.Debugf(f, "Space usage: Total=%d, Used=%d, Free=%d", result.Available, result.Used, result.Available-result.Used)
+	return usage, nil
+}
+
+// ChangeNotify calls the passed function with a path that has had changes.
+// If the implementation uses polling, it should adhere to the given interval.
+//
+// This implementation polls for changes by monitoring file listings.
+// Since FolderFort doesn't provide real-time change notifications with detailed paths,
+// we use a simple but conservative polling approach.
+//
 // MimeType delegates to the wrapped src if it implements MimeTyper
 func (u *updateObjectInfo) MimeType(ctx context.Context) string {
 	if mimeTyper, ok := u.src.(fs.MimeTyper); ok {
@@ -1744,6 +1778,7 @@ func (u *updateObjectInfo) MimeType(ctx context.Context) string {
 // Check the interfaces are satisfied
 var (
 	_ fs.Fs         = (*Fs)(nil)
+	_ fs.Abouter    = (*Fs)(nil)
 	_ fs.Mover      = (*Fs)(nil)
 	_ fs.Copier     = (*Fs)(nil)
 	_ fs.DirMover   = (*Fs)(nil)

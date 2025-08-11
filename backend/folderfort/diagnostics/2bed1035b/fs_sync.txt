@@ -1,0 +1,839 @@
+=== RUN   TestPipe
+--- PASS: TestPipe (0.00s)
+=== RUN   TestPipeConcurrent
+--- PASS: TestPipeConcurrent (0.02s)
+=== RUN   TestPipeOrderBy
+=== RUN   TestPipeOrderBy/#00
+=== RUN   TestPipeOrderBy/size
+=== RUN   TestPipeOrderBy/name
+=== RUN   TestPipeOrderBy/modtime
+=== RUN   TestPipeOrderBy/size,ascending
+=== RUN   TestPipeOrderBy/name,asc
+=== RUN   TestPipeOrderBy/modtime,ascending
+=== RUN   TestPipeOrderBy/size,descending
+=== RUN   TestPipeOrderBy/name,desc
+=== RUN   TestPipeOrderBy/modtime,descending
+=== RUN   TestPipeOrderBy/size,mixed,50
+=== RUN   TestPipeOrderBy/size,mixed,51
+--- PASS: TestPipeOrderBy (0.00s)
+    --- PASS: TestPipeOrderBy/#00 (0.00s)
+    --- PASS: TestPipeOrderBy/size (0.00s)
+    --- PASS: TestPipeOrderBy/name (0.00s)
+    --- PASS: TestPipeOrderBy/modtime (0.00s)
+    --- PASS: TestPipeOrderBy/size,ascending (0.00s)
+    --- PASS: TestPipeOrderBy/name,asc (0.00s)
+    --- PASS: TestPipeOrderBy/modtime,ascending (0.00s)
+    --- PASS: TestPipeOrderBy/size,descending (0.00s)
+    --- PASS: TestPipeOrderBy/name,desc (0.00s)
+    --- PASS: TestPipeOrderBy/modtime,descending (0.00s)
+    --- PASS: TestPipeOrderBy/size,mixed,50 (0.00s)
+    --- PASS: TestPipeOrderBy/size,mixed,51 (0.00s)
+=== RUN   TestNewLess
+=== RUN   TestNewLess/blankOK
+=== RUN   TestNewLess/tooManyParts
+=== RUN   TestNewLess/tooManyParts2
+=== RUN   TestNewLess/badMixed
+=== RUN   TestNewLess/unknownComparison
+=== RUN   TestNewLess/unknownSortDirection
+=== RUN   TestNewLess/size
+=== RUN   TestNewLess/name
+=== RUN   TestNewLess/modtime
+=== RUN   TestNewLess/size,ascending
+=== RUN   TestNewLess/name,asc
+=== RUN   TestNewLess/modtime,ascending
+=== RUN   TestNewLess/size,descending
+=== RUN   TestNewLess/name,desc
+=== RUN   TestNewLess/modtime,descending
+=== RUN   TestNewLess/modtime,mixed
+=== RUN   TestNewLess/modtime,mixed,30
+--- PASS: TestNewLess (0.00s)
+    --- PASS: TestNewLess/blankOK (0.00s)
+    --- PASS: TestNewLess/tooManyParts (0.00s)
+    --- PASS: TestNewLess/tooManyParts2 (0.00s)
+    --- PASS: TestNewLess/badMixed (0.00s)
+    --- PASS: TestNewLess/unknownComparison (0.00s)
+    --- PASS: TestNewLess/unknownSortDirection (0.00s)
+    --- PASS: TestNewLess/size (0.00s)
+    --- PASS: TestNewLess/name (0.00s)
+    --- PASS: TestNewLess/modtime (0.00s)
+    --- PASS: TestNewLess/size,ascending (0.00s)
+    --- PASS: TestNewLess/name,asc (0.00s)
+    --- PASS: TestNewLess/modtime,ascending (0.00s)
+    --- PASS: TestNewLess/size,descending (0.00s)
+    --- PASS: TestNewLess/name,desc (0.00s)
+    --- PASS: TestNewLess/modtime,descending (0.00s)
+    --- PASS: TestNewLess/modtime,mixed (0.00s)
+    --- PASS: TestNewLess/modtime,mixed,30 (0.00s)
+=== RUN   TestRcCopy
+    rc_test.go:16: Skipping test on non local remote
+--- SKIP: TestRcCopy (0.00s)
+=== RUN   TestRcMove
+    rc_test.go:16: Skipping test on non local remote
+--- SKIP: TestRcMove (0.00s)
+=== RUN   TestRcSync
+    rc_test.go:16: Skipping test on non local remote
+--- SKIP: TestRcSync (0.00s)
+=== RUN   TestCopyWithDryRun
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+2025/08/11 21:19:52 NOTICE: sub dir/hello world: Skipped copy as --dry-run is set (size 11)
+--- PASS: TestCopyWithDryRun (2.60s)
+=== RUN   TestCopy
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestCopy (9.59s)
+=== RUN   TestCopyMetadata
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:98: Skipping as metadata not supported
+--- SKIP: TestCopyMetadata (1.23s)
+=== RUN   TestCopyMetadataNoEmptyDirs
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:98: Skipping as metadata not supported
+--- SKIP: TestCopyMetadataNoEmptyDirs (1.23s)
+=== RUN   TestCopyMissingDirectory
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+2025/08/11 21:20:07 ERROR : Local file system at /non-existing: error reading source root directory: directory not found
+--- PASS: TestCopyMissingDirectory (1.74s)
+=== RUN   TestCopyNoTraverse
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestCopyNoTraverse (12.08s)
+=== RUN   TestCopyNoTraverseDeadlock
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:222: Only runs on local
+--- SKIP: TestCopyNoTraverseDeadlock (1.23s)
+=== RUN   TestCopyCheckFirst
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestCopyCheckFirst (9.93s)
+=== RUN   TestSyncNoTraverse
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+2025/08/11 21:20:31 ERROR : Ignoring --no-traverse with sync
+--- PASS: TestSyncNoTraverse (11.16s)
+=== RUN   TestCopyWithDepth
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestCopyWithDepth (6.76s)
+=== RUN   TestCopyWithFilesFrom
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestCopyWithFilesFrom (6.76s)
+=== RUN   TestCopyWithFilesFromAndNoTraverse
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestCopyWithFilesFromAndNoTraverse (7.27s)
+=== RUN   TestCopyEmptyDirectories
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestCopyEmptyDirectories (17.11s)
+=== RUN   TestCopyNoEmptyDirectories
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestCopyNoEmptyDirectories (10.84s)
+=== RUN   TestMoveEmptyDirectories
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestMoveEmptyDirectories (14.16s)
+=== RUN   TestSyncNoUpdateDirModtime
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:438: Skipping test as backend does not support DirSetModTime
+--- SKIP: TestSyncNoUpdateDirModtime (1.13s)
+=== RUN   TestMoveNoEmptyDirectories
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestMoveNoEmptyDirectories (10.62s)
+=== RUN   TestSyncEmptyDirectories
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncEmptyDirectories (14.85s)
+=== RUN   TestSyncSetDelayedModTimes
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:537: Backend doesn't have DirModTimeUpdatesOnWrite set
+--- SKIP: TestSyncSetDelayedModTimes (1.23s)
+=== RUN   TestSyncNoEmptyDirectories
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncNoEmptyDirectories (10.45s)
+=== RUN   TestServerSideCopy
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:620: Server side copy (if possible) FolderFort root 'rclone-test-varaxad2dane' -> FolderFort root 'rclone-test-zuquvos6qomu'
+--- PASS: TestServerSideCopy (18.77s)
+=== RUN   TestCopyOverSelf
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestCopyOverSelf (17.89s)
+=== RUN   TestServerSideCopyOverSelf
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:656: Server side copy (if possible) FolderFort root 'rclone-test-varaxad2dane' -> FolderFort root 'rclone-test-zulaxog5zijo'
+--- PASS: TestServerSideCopyOverSelf (33.07s)
+=== RUN   TestMoveOverSelf
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestMoveOverSelf (19.26s)
+=== RUN   TestServerSideMoveOverSelf
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:701: Server side copy (if possible) FolderFort root 'rclone-test-varaxad2dane' -> FolderFort root 'rclone-test-furabib6hode'
+--- PASS: TestServerSideMoveOverSelf (45.15s)
+=== RUN   TestCopyAfterDelete
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+2025/08/11 21:24:43 ERROR : error listing: directory not found
+--- PASS: TestCopyAfterDelete (13.21s)
+=== RUN   TestCopyRedownload
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestCopyRedownload (13.62s)
+=== RUN   TestSyncBasedOnCheckSum
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+2025/08/11 21:25:11 NOTICE: FolderFort root 'rclone-test-varaxad2dane': --checksum is in use but the source and destination have no hashes in common; falling back to --size-only
+--- PASS: TestSyncBasedOnCheckSum (8.81s)
+=== RUN   TestSyncSizeOnly
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncSizeOnly (8.39s)
+=== RUN   TestSyncIgnoreSize
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncIgnoreSize (8.09s)
+=== RUN   TestSyncIgnoreTimes
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncIgnoreTimes (12.70s)
+=== RUN   TestSyncIgnoreExisting
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncIgnoreExisting (9.05s)
+=== RUN   TestSyncIgnoreErrors
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncIgnoreErrors (26.27s)
+=== RUN   TestSyncAfterChangingModtimeOnly
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncAfterChangingModtimeOnly (8.63s)
+=== RUN   TestSyncAfterChangingModtimeOnlyWithNoUpdateModTime
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:1046: Can't check this if no hashes supported
+--- PASS: TestSyncAfterChangingModtimeOnlyWithNoUpdateModTime (1.19s)
+=== RUN   TestSyncDoesntUpdateModtime
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:1072: Can't run this test on fs which doesn't support mod time
+--- SKIP: TestSyncDoesntUpdateModtime (1.04s)
+=== RUN   TestSyncAfterAddingAFile
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncAfterAddingAFile (13.64s)
+=== RUN   TestSyncAfterChangingFilesSizeOnly
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncAfterChangingFilesSizeOnly (11.49s)
+=== RUN   TestSyncAfterChangingContentsOnly
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:1136: ModTimeNotSupported so forcing file to be a different size
+--- PASS: TestSyncAfterChangingContentsOnly (10.20s)
+=== RUN   TestSyncAfterRemovingAFileAndAddingAFileDryRun
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+2025/08/11 21:27:12 NOTICE: potato2: Skipped copy as --dry-run is set (size 60)
+2025/08/11 21:27:12 NOTICE: potato: Skipped delete as --dry-run is set (size 21)
+--- PASS: TestSyncAfterRemovingAFileAndAddingAFileDryRun (10.72s)
+=== RUN   TestSyncAfterRemovingAFileAndAddingAFile
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncAfterRemovingAFileAndAddingAFile (17.00s)
+=== RUN   TestSyncAfterRemovingAFileAndAddingAFileSubDir
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncAfterRemovingAFileAndAddingAFileSubDir (29.96s)
+=== RUN   TestSyncAfterRemovingAFileAndAddingAFileSubDirWithErrors
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+2025/08/11 21:28:21 ERROR : FolderFort root 'rclone-test-varaxad2dane': not deleting files as there were IO errors
+2025/08/11 21:28:21 ERROR : FolderFort root 'rclone-test-varaxad2dane': not deleting directories as there were IO errors
+--- PASS: TestSyncAfterRemovingAFileAndAddingAFileSubDirWithErrors (27.80s)
+=== RUN   TestSyncDeleteAfter
+--- PASS: TestSyncDeleteAfter (0.00s)
+=== RUN   TestSyncDeleteDuring
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncDeleteDuring (14.44s)
+=== RUN   TestSyncDeleteBefore
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncDeleteBefore (17.52s)
+=== RUN   TestCopyDeleteBefore
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestCopyDeleteBefore (12.87s)
+=== RUN   TestSyncWithExclude
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncWithExclude (13.54s)
+=== RUN   TestSyncWithExcludeAndDeleteExcluded
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncWithExcludeAndDeleteExcluded (18.23s)
+=== RUN   TestSyncWithUpdateOlder
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:1453: Can't run this test on fs which doesn't support mod time
+--- SKIP: TestSyncWithUpdateOlder (1.13s)
+=== RUN   TestSyncWithMaxDuration
+=== RUN   TestSyncWithMaxDuration/Hard
+    sync_test.go:1496: Skipping test on non local remote
+=== RUN   TestSyncWithMaxDuration/Soft
+    sync_test.go:1496: Skipping test on non local remote
+--- PASS: TestSyncWithMaxDuration (0.00s)
+    --- SKIP: TestSyncWithMaxDuration/Hard (0.00s)
+    --- SKIP: TestSyncWithMaxDuration/Soft (0.00s)
+=== RUN   TestSyncWithTrackRenames
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:1568: Can track renames: false
+2025/08/11 21:29:47 ERROR : FolderFort root 'rclone-test-varaxad2dane': Ignoring --track-renames as the source and destination do not have a common hash
+2025/08/11 21:29:52 ERROR : FolderFort root 'rclone-test-varaxad2dane': Ignoring --track-renames as the source and destination do not have a common hash
+--- PASS: TestSyncWithTrackRenames (12.60s)
+=== RUN   TestParseRenamesStrategyModtime
+--- PASS: TestParseRenamesStrategyModtime (0.00s)
+=== RUN   TestRenamesStrategyModtime
+--- PASS: TestRenamesStrategyModtime (0.00s)
+=== RUN   TestSyncWithTrackRenamesStrategyModtime
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:1640: Can track renames: false
+2025/08/11 21:30:00 ERROR : FolderFort root 'rclone-test-varaxad2dane': Ignoring --track-renames as either the source or destination do not support modtime
+2025/08/11 21:30:06 ERROR : FolderFort root 'rclone-test-varaxad2dane': Ignoring --track-renames as either the source or destination do not support modtime
+--- PASS: TestSyncWithTrackRenamesStrategyModtime (13.38s)
+=== RUN   TestSyncWithTrackRenamesStrategyLeaf
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:1679: Can track renames: false
+--- PASS: TestSyncWithTrackRenamesStrategyLeaf (14.47s)
+=== RUN   TestServerSideMoveLocal
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestServerSideMoveLocal (1.23s)
+=== RUN   TestMoveWithDeleteEmptySrcDirs
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestMoveWithDeleteEmptySrcDirs (14.67s)
+=== RUN   TestMoveWithoutDeleteEmptySrcDirs
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestMoveWithoutDeleteEmptySrcDirs (16.36s)
+=== RUN   TestMoveWithIgnoreExisting
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestMoveWithIgnoreExisting (7.78s)
+=== RUN   TestServerSideMove
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:1735: Server side move (if possible) FolderFort root 'rclone-test-varaxad2dane' -> FolderFort root 'rclone-test-voraboz9dafa'
+2025/08/11 21:31:38 ERROR : error listing: directory not found
+2025/08/11 21:31:39 NOTICE: purge failed: directory not found
+--- PASS: TestServerSideMove (32.67s)
+=== RUN   TestServerSideMoveWithFilter
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:1735: Server side move (if possible) FolderFort root 'rclone-test-varaxad2dane' -> FolderFort root 'rclone-test-yicegug8hobe'
+--- PASS: TestServerSideMoveWithFilter (29.94s)
+=== RUN   TestServerSideMoveDeleteEmptySourceDirs
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:1735: Server side move (if possible) FolderFort root 'rclone-test-varaxad2dane' -> FolderFort root 'rclone-test-qugujiz7rudu'
+2025/08/11 21:32:45 ERROR : error listing: directory not found
+2025/08/11 21:32:45 ERROR : error listing: directory not found
+2025/08/11 21:32:46 NOTICE: purge failed: directory not found
+--- PASS: TestServerSideMoveDeleteEmptySourceDirs (37.24s)
+=== RUN   TestServerSideMoveOverlap
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:1940: Skipping test as remote supports DirMove
+--- SKIP: TestServerSideMoveOverlap (1.05s)
+=== RUN   TestSyncOverlap
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncOverlap (2.22s)
+=== RUN   TestSyncOverlapWithFilter
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncOverlapWithFilter (50.93s)
+=== RUN   TestSyncCompareDest
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:2205: No hash on uploaded file so skipping compare timestamp test
+--- PASS: TestSyncCompareDest (62.13s)
+=== RUN   TestSyncMultipleCompareDest
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncMultipleCompareDest (32.69s)
+=== RUN   TestSyncCopyDest
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncCopyDest (79.67s)
+=== RUN   TestSyncBackupDir
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncBackupDir (50.97s)
+=== RUN   TestSyncBackupDirWithSuffix
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    fstest.go:295: Sleeping for 1s for list eventual consistency: 1/3
+    fstest.go:295: Sleeping for 2s for list eventual consistency: 2/3
+    fstest.go:295: Sleeping for 4s for list eventual consistency: 3/3
+    fstest.go:302: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:302
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2428
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2461
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffix
+        	Messages:   	listing wrong, want
+        	            	  backup/one.bak (3), backup/three.txt.bak (5), dst/one (4), dst/two (3) got
+        	            	  dst/one (4), dst/one.bak (3), dst/three.txt.bak (5), dst/two (3)
+    fstest.go:188: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:188
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:305
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2428
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2461
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffix
+        	Messages:   	Unexpected file "dst/one.bak"
+    fstest.go:188: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:188
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:305
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2428
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2461
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffix
+        	Messages:   	Unexpected file "dst/three.txt.bak"
+    fstest.go:200: Not found "backup/three.txt.bak"
+    fstest.go:200: Not found "backup/one.bak"
+    fstest.go:203: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:203
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:307
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2428
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2461
+        	Error:      	Not equal: 
+        	            	expected: 0
+        	            	actual  : 2
+        	Test:       	TestSyncBackupDirWithSuffix
+        	Messages:   	2 objects not found
+    fstest.go:295: Sleeping for 1s for list eventual consistency: 1/3
+    fstest.go:295: Sleeping for 2s for list eventual consistency: 2/3
+    fstest.go:295: Sleeping for 4s for list eventual consistency: 3/3
+    fstest.go:302: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:302
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2434
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2461
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffix
+        	Messages:   	listing wrong, want
+        	            	  backup/one.bak (3), backup/three.txt.bak (5), dst/one (4), dst/three.txt (6), dst/two (3) got
+        	            	  dst/one (4), dst/one.bak (3), dst/three.txt (6), dst/three.txt.bak (5), dst/two (3)
+    fstest.go:188: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:188
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:305
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2434
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2461
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffix
+        	Messages:   	Unexpected file "dst/one.bak"
+    fstest.go:188: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:188
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:305
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2434
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2461
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffix
+        	Messages:   	Unexpected file "dst/three.txt.bak"
+    fstest.go:200: Not found "backup/one.bak"
+    fstest.go:200: Not found "backup/three.txt.bak"
+    fstest.go:203: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:203
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:307
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2434
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2461
+        	Error:      	Not equal: 
+        	            	expected: 0
+        	            	actual  : 2
+        	Test:       	TestSyncBackupDirWithSuffix
+        	Messages:   	2 objects not found
+    fstest.go:295: Sleeping for 1s for list eventual consistency: 1/3
+    fstest.go:295: Sleeping for 2s for list eventual consistency: 2/3
+    fstest.go:295: Sleeping for 4s for list eventual consistency: 3/3
+    fstest.go:302: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:302
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2453
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2461
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffix
+        	Messages:   	listing wrong, want
+        	            	  backup/one.bak (4), backup/three.txt.bak (6), dst/one (5), dst/two (3) got
+        	            	  dst/one (5), dst/one.bak (4), dst/one.bak.bak (3), dst/three.txt.bak (6), dst/three.txt.bak.bak (5), dst/two (3)
+    fstest.go:188: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:188
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:305
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2453
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2461
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffix
+        	Messages:   	Unexpected file "dst/one.bak"
+    fstest.go:188: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:188
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:305
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2453
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2461
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffix
+        	Messages:   	Unexpected file "dst/one.bak.bak"
+    fstest.go:188: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:188
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:305
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2453
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2461
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffix
+        	Messages:   	Unexpected file "dst/three.txt.bak"
+    fstest.go:188: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:188
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:305
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2453
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2461
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffix
+        	Messages:   	Unexpected file "dst/three.txt.bak.bak"
+    fstest.go:200: Not found "backup/three.txt.bak"
+    fstest.go:200: Not found "backup/one.bak"
+    fstest.go:203: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:203
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:307
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2453
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2461
+        	Error:      	Not equal: 
+        	            	expected: 0
+        	            	actual  : 2
+        	Test:       	TestSyncBackupDirWithSuffix
+        	Messages:   	2 objects not found
+--- FAIL: TestSyncBackupDirWithSuffix (75.99s)
+=== RUN   TestSyncBackupDirWithSuffixKeepExtension
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    fstest.go:295: Sleeping for 1s for list eventual consistency: 1/3
+    fstest.go:295: Sleeping for 2s for list eventual consistency: 2/3
+    fstest.go:295: Sleeping for 4s for list eventual consistency: 3/3
+    fstest.go:302: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:302
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2428
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2465
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffixKeepExtension
+        	Messages:   	listing wrong, want
+        	            	  backup/one-2019-01-01 (3), backup/three-2019-01-01.txt (5), dst/one (4), dst/two (3) got
+        	            	  dst/one (4), dst/one-2019-01-01 (3), dst/three-2019-01-01.txt (5), dst/two (3)
+    fstest.go:188: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:188
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:305
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2428
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2465
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffixKeepExtension
+        	Messages:   	Unexpected file "dst/one-2019-01-01"
+    fstest.go:188: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:188
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:305
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2428
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2465
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffixKeepExtension
+        	Messages:   	Unexpected file "dst/three-2019-01-01.txt"
+    fstest.go:200: Not found "backup/three-2019-01-01.txt"
+    fstest.go:200: Not found "backup/one-2019-01-01"
+    fstest.go:203: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:203
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:307
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2428
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2465
+        	Error:      	Not equal: 
+        	            	expected: 0
+        	            	actual  : 2
+        	Test:       	TestSyncBackupDirWithSuffixKeepExtension
+        	Messages:   	2 objects not found
+    fstest.go:295: Sleeping for 1s for list eventual consistency: 1/3
+    fstest.go:295: Sleeping for 2s for list eventual consistency: 2/3
+    fstest.go:295: Sleeping for 4s for list eventual consistency: 3/3
+    fstest.go:302: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:302
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2434
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2465
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffixKeepExtension
+        	Messages:   	listing wrong, want
+        	            	  backup/one-2019-01-01 (3), backup/three-2019-01-01.txt (5), dst/one (4), dst/three.txt (6), dst/two (3) got
+        	            	  dst/one (4), dst/one-2019-01-01 (3), dst/three-2019-01-01.txt (5), dst/three.txt (6), dst/two (3)
+    fstest.go:188: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:188
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:305
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2434
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2465
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffixKeepExtension
+        	Messages:   	Unexpected file "dst/one-2019-01-01"
+    fstest.go:188: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:188
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:305
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2434
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2465
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffixKeepExtension
+        	Messages:   	Unexpected file "dst/three-2019-01-01.txt"
+    fstest.go:200: Not found "backup/one-2019-01-01"
+    fstest.go:200: Not found "backup/three-2019-01-01.txt"
+    fstest.go:203: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:203
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:307
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2434
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2465
+        	Error:      	Not equal: 
+        	            	expected: 0
+        	            	actual  : 2
+        	Test:       	TestSyncBackupDirWithSuffixKeepExtension
+        	Messages:   	2 objects not found
+    fstest.go:295: Sleeping for 1s for list eventual consistency: 1/3
+    fstest.go:295: Sleeping for 2s for list eventual consistency: 2/3
+    fstest.go:295: Sleeping for 4s for list eventual consistency: 3/3
+    fstest.go:302: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:302
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2453
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2465
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffixKeepExtension
+        	Messages:   	listing wrong, want
+        	            	  backup/one-2019-01-01 (4), backup/three-2019-01-01.txt (6), dst/one (5), dst/two (3) got
+        	            	  dst/one (5), dst/one-2019-01-01 (4), dst/one-2019-01-01-2019-01-01 (3), dst/three-2019-01-01-2019-01-01.txt (5), dst/three-2019-01-01.txt (6), dst/two (3)
+    fstest.go:188: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:188
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:305
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2453
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2465
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffixKeepExtension
+        	Messages:   	Unexpected file "dst/one-2019-01-01"
+    fstest.go:188: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:188
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:305
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2453
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2465
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffixKeepExtension
+        	Messages:   	Unexpected file "dst/one-2019-01-01-2019-01-01"
+    fstest.go:188: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:188
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:305
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2453
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2465
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffixKeepExtension
+        	Messages:   	Unexpected file "dst/three-2019-01-01-2019-01-01.txt"
+    fstest.go:188: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:188
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:305
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2453
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2465
+        	Error:      	Should be true
+        	Test:       	TestSyncBackupDirWithSuffixKeepExtension
+        	Messages:   	Unexpected file "dst/three-2019-01-01.txt"
+    fstest.go:200: Not found "backup/three-2019-01-01.txt"
+    fstest.go:200: Not found "backup/one-2019-01-01"
+    fstest.go:203: 
+        	Error Trace:	/home/user/Desktop/rclone-folderfort/fstest/fstest.go:203
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:307
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:335
+        	            				/home/user/Desktop/rclone-folderfort/fstest/fstest.go:347
+        	            				/home/user/Desktop/rclone-folderfort/fstest/run.go:340
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2453
+        	            				/home/user/Desktop/rclone-folderfort/fs/sync/sync_test.go:2465
+        	Error:      	Not equal: 
+        	            	expected: 0
+        	            	actual  : 2
+        	Test:       	TestSyncBackupDirWithSuffixKeepExtension
+        	Messages:   	2 objects not found
+--- FAIL: TestSyncBackupDirWithSuffixKeepExtension (78.75s)
+=== RUN   TestSyncBackupDirSuffixOnly
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncBackupDirSuffixOnly (46.49s)
+=== RUN   TestSyncSuffix
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncSuffix (56.32s)
+=== RUN   TestSyncSuffixKeepExtension
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncSuffixKeepExtension (56.73s)
+=== RUN   TestSyncUTFNorm
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncUTFNorm (10.96s)
+=== RUN   TestSyncImmutable
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+2025/08/11 21:43:00 ERROR : existing: Source and destination exist but do not match: immutable file modified
+2025/08/11 21:43:00 ERROR : FolderFort root 'rclone-test-varaxad2dane': not deleting files as there were IO errors
+2025/08/11 21:43:00 ERROR : FolderFort root 'rclone-test-varaxad2dane': not deleting directories as there were IO errors
+--- PASS: TestSyncImmutable (9.42s)
+=== RUN   TestSyncIgnoreCase
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncIgnoreCase (7.07s)
+=== RUN   TestFixCase
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:2665: Skipping test as local or remote are case-sensitive
+--- SKIP: TestFixCase (1.23s)
+=== RUN   TestMaxTransfer
+=== RUN   TestMaxTransfer/Hard
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:2704: This test only runs on local
+=== RUN   TestMaxTransfer/Soft
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:2704: This test only runs on local
+=== RUN   TestMaxTransfer/Cautious
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+    sync_test.go:2704: This test only runs on local
+--- PASS: TestMaxTransfer (3.69s)
+    --- SKIP: TestMaxTransfer/Hard (1.23s)
+    --- SKIP: TestMaxTransfer/Soft (1.23s)
+    --- SKIP: TestMaxTransfer/Cautious (1.23s)
+=== RUN   TestSyncConcurrentDelete
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncConcurrentDelete (172.97s)
+=== RUN   TestSyncConcurrentTruncate
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncConcurrentTruncate (199.39s)
+=== RUN   TestSyncReplaceDirModTime
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncReplaceDirModTime (20.99s)
+=== RUN   TestSyncReplaceDirModTimeWithEmptyDirs
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestSyncReplaceDirModTimeWithEmptyDirs (26.46s)
+=== RUN   TestNothingToTransferWithEmptyDirs
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestNothingToTransferWithEmptyDirs (110.98s)
+=== RUN   TestNothingToTransferWithoutEmptyDirs
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestNothingToTransferWithoutEmptyDirs (95.65s)
+=== RUN   TestTransform
+=== RUN   TestTransform/NFC
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+=== RUN   TestTransform/NFD
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+=== RUN   TestTransform/base64
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+=== RUN   TestTransform/prefix
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+=== RUN   TestTransform/suffix
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+=== RUN   TestTransform/truncate
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+=== RUN   TestTransform/encoder
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+=== RUN   TestTransform/ISO-8859-1
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+=== RUN   TestTransform/charmap
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+=== RUN   TestTransform/lowercase
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+=== RUN   TestTransform/ascii
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestTransform (1621.94s)
+    --- PASS: TestTransform/NFC (128.72s)
+    --- PASS: TestTransform/NFD (129.03s)
+    --- PASS: TestTransform/base64 (165.52s)
+    --- PASS: TestTransform/prefix (193.33s)
+    --- PASS: TestTransform/suffix (184.19s)
+    --- PASS: TestTransform/truncate (159.74s)
+    --- PASS: TestTransform/encoder (135.68s)
+    --- PASS: TestTransform/ISO-8859-1 (137.93s)
+    --- PASS: TestTransform/charmap (125.95s)
+    --- PASS: TestTransform/lowercase (124.21s)
+    --- PASS: TestTransform/ascii (137.62s)
+=== RUN   TestTransformCopy
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestTransformCopy (18.02s)
+=== RUN   TestDoubleTransform
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestDoubleTransform (12.08s)
+=== RUN   TestFileTag
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestFileTag (17.36s)
+=== RUN   TestNoTag
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestNoTag (18.68s)
+=== RUN   TestDirTag
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestDirTag (20.27s)
+=== RUN   TestAllTag
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+2025/08/11 22:22:24 NOTICE: FolderFort root 'rclone-test-varaxad2dane': 0 differences found
+2025/08/11 22:22:24 NOTICE: FolderFort root 'rclone-test-varaxad2dane': 1 hashes could not be checked
+2025/08/11 22:22:24 NOTICE: FolderFort root 'rclone-test-varaxad2dane': 1 matching files
+--- PASS: TestAllTag (22.73s)
+=== RUN   TestRunTwice
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestRunTwice (22.94s)
+=== RUN   TestSyntax
+--- PASS: TestSyntax (0.00s)
+=== RUN   TestConflicting
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestConflicting (18.33s)
+=== RUN   TestMove
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestMove (19.66s)
+=== RUN   TestTransformFile
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestTransformFile (30.21s)
+=== RUN   TestManualTransformFile
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestManualTransformFile (36.69s)
+=== RUN   TestBase64
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+--- PASS: TestBase64 (23.01s)
+=== RUN   TestError
+    run.go:180: Remote "FolderFort root 'rclone-test-varaxad2dane'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3280794525", Modify Window "876000h0m0s"
+2025/08/11 22:25:02 ERROR : Failed to transform: transform cannot add path separators: ta/ctoe
+2025/08/11 22:25:03 ERROR : Failed to transform: transform cannot add path separators: ta/ctoe
+2025/08/11 22:25:03 ERROR : Failed to transform: transform cannot add path separators: ta/ctoe
+2025/08/11 22:25:03 ERROR : Failed to transform: transform cannot add path separators: ta/ctoe
+2025/08/11 22:25:03 ERROR : Failed to transform: transform cannot add path separators: ta/ctoe
+2025/08/11 22:25:03 ERROR : toe/toe: number of path segments must match: toe/toe (1),  (0)
+2025/08/11 22:25:04 ERROR : Failed to transform: transform cannot add path separators: ta/ctoe
+2025/08/11 22:25:04 ERROR : toe/toe: number of path segments must match: toe/toe (1),  (0)
+2025/08/11 22:25:04 ERROR : Failed to transform: transform cannot add path separators: ta/ctoe
+2025/08/11 22:25:04 ERROR : Failed to transform: transform cannot add path separators: ta/ctoe
+2025/08/11 22:25:04 ERROR : toe/toe/toe: number of path segments must match: toe/toe/toe (2),  (0)
+2025/08/11 22:25:11 ERROR : FolderFort root 'rclone-test-varaxad2dane': not deleting files as there were IO errors
+2025/08/11 22:25:11 ERROR : FolderFort root 'rclone-test-varaxad2dane': not deleting directories as there were IO errors
+--- PASS: TestError (17.51s)
+FAIL
+exit status 1
+FAIL	github.com/rclone/rclone/fs/sync	3929.530s

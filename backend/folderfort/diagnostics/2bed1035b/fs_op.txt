@@ -1,0 +1,667 @@
+=== RUN   TestDoMultiThreadCopy
+--- PASS: TestDoMultiThreadCopy (0.00s)
+=== RUN   TestMultithreadCalculateNumChunks
+=== RUN   TestMultithreadCalculateNumChunks/{size:1_chunkSize:65536_wantNumChunks:1}
+=== RUN   TestMultithreadCalculateNumChunks/{size:1048576_chunkSize:1_wantNumChunks:1048576}
+=== RUN   TestMultithreadCalculateNumChunks/{size:1048576_chunkSize:2_wantNumChunks:524288}
+=== RUN   TestMultithreadCalculateNumChunks/{size:1048577_chunkSize:2_wantNumChunks:524289}
+=== RUN   TestMultithreadCalculateNumChunks/{size:1048575_chunkSize:2_wantNumChunks:524288}
+--- PASS: TestMultithreadCalculateNumChunks (0.00s)
+    --- PASS: TestMultithreadCalculateNumChunks/{size:1_chunkSize:65536_wantNumChunks:1} (0.00s)
+    --- PASS: TestMultithreadCalculateNumChunks/{size:1048576_chunkSize:1_wantNumChunks:1048576} (0.00s)
+    --- PASS: TestMultithreadCalculateNumChunks/{size:1048576_chunkSize:2_wantNumChunks:524288} (0.00s)
+    --- PASS: TestMultithreadCalculateNumChunks/{size:1048577_chunkSize:2_wantNumChunks:524289} (0.00s)
+    --- PASS: TestMultithreadCalculateNumChunks/{size:1048575_chunkSize:2_wantNumChunks:524288} (0.00s)
+=== RUN   TestMultithreadCopy
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    multithread_test.go:121: multithread writing not supported
+2025/08/11 20:57:10 ERROR : error listing: directory not found
+--- SKIP: TestMultithreadCopy (0.25s)
+=== RUN   TestMultithreadCopyAbort
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    multithread_test.go:121: multithread writing not supported
+2025/08/11 20:57:10 ERROR : error listing: directory not found
+--- SKIP: TestMultithreadCopyAbort (0.25s)
+=== RUN   TestSizeDiffers
+--- PASS: TestSizeDiffers (0.00s)
+=== RUN   TestReOpen
+=== RUN   TestReOpen/Normal
+=== RUN   TestReOpen/Normal/Basics
+=== RUN   TestReOpen/Normal/ErrorAtStart
+=== RUN   TestReOpen/Normal/WithErrors
+=== RUN   TestReOpen/Normal/TooManyErrors
+=== RUN   TestReOpen/Normal/Seek
+=== RUN   TestReOpen/Normal/AccountRead
+=== RUN   TestReOpen/Normal/AccountReadDelay
+=== RUN   TestReOpen/Normal/AccountReadError
+=== RUN   TestReOpen/WithRangeOption
+=== RUN   TestReOpen/WithRangeOption/Basics
+=== RUN   TestReOpen/WithRangeOption/ErrorAtStart
+=== RUN   TestReOpen/WithRangeOption/WithErrors
+=== RUN   TestReOpen/WithRangeOption/TooManyErrors
+=== RUN   TestReOpen/WithRangeOption/Seek
+=== RUN   TestReOpen/WithRangeOption/AccountRead
+=== RUN   TestReOpen/WithRangeOption/AccountReadDelay
+=== RUN   TestReOpen/WithRangeOption/AccountReadError
+=== RUN   TestReOpen/WithSeekOption
+=== RUN   TestReOpen/WithSeekOption/Basics
+=== RUN   TestReOpen/WithSeekOption/ErrorAtStart
+=== RUN   TestReOpen/WithSeekOption/WithErrors
+=== RUN   TestReOpen/WithSeekOption/TooManyErrors
+=== RUN   TestReOpen/WithSeekOption/Seek
+=== RUN   TestReOpen/WithSeekOption/AccountRead
+=== RUN   TestReOpen/WithSeekOption/AccountReadDelay
+=== RUN   TestReOpen/WithSeekOption/AccountReadError
+=== RUN   TestReOpen/UnknownSize
+=== RUN   TestReOpen/UnknownSize/Basics
+=== RUN   TestReOpen/UnknownSize/ErrorAtStart
+=== RUN   TestReOpen/UnknownSize/WithErrors
+=== RUN   TestReOpen/UnknownSize/TooManyErrors
+=== RUN   TestReOpen/UnknownSize/Seek
+=== RUN   TestReOpen/UnknownSize/AccountRead
+=== RUN   TestReOpen/UnknownSize/AccountReadDelay
+=== RUN   TestReOpen/UnknownSize/AccountReadError
+--- PASS: TestReOpen (0.00s)
+    --- PASS: TestReOpen/Normal (0.00s)
+        --- PASS: TestReOpen/Normal/Basics (0.00s)
+        --- PASS: TestReOpen/Normal/ErrorAtStart (0.00s)
+        --- PASS: TestReOpen/Normal/WithErrors (0.00s)
+        --- PASS: TestReOpen/Normal/TooManyErrors (0.00s)
+        --- PASS: TestReOpen/Normal/Seek (0.00s)
+        --- PASS: TestReOpen/Normal/AccountRead (0.00s)
+        --- PASS: TestReOpen/Normal/AccountReadDelay (0.00s)
+        --- PASS: TestReOpen/Normal/AccountReadError (0.00s)
+    --- PASS: TestReOpen/WithRangeOption (0.00s)
+        --- PASS: TestReOpen/WithRangeOption/Basics (0.00s)
+        --- PASS: TestReOpen/WithRangeOption/ErrorAtStart (0.00s)
+        --- PASS: TestReOpen/WithRangeOption/WithErrors (0.00s)
+        --- PASS: TestReOpen/WithRangeOption/TooManyErrors (0.00s)
+        --- PASS: TestReOpen/WithRangeOption/Seek (0.00s)
+        --- PASS: TestReOpen/WithRangeOption/AccountRead (0.00s)
+        --- PASS: TestReOpen/WithRangeOption/AccountReadDelay (0.00s)
+        --- PASS: TestReOpen/WithRangeOption/AccountReadError (0.00s)
+    --- PASS: TestReOpen/WithSeekOption (0.00s)
+        --- PASS: TestReOpen/WithSeekOption/Basics (0.00s)
+        --- PASS: TestReOpen/WithSeekOption/ErrorAtStart (0.00s)
+        --- PASS: TestReOpen/WithSeekOption/WithErrors (0.00s)
+        --- PASS: TestReOpen/WithSeekOption/TooManyErrors (0.00s)
+        --- PASS: TestReOpen/WithSeekOption/Seek (0.00s)
+        --- PASS: TestReOpen/WithSeekOption/AccountRead (0.00s)
+        --- PASS: TestReOpen/WithSeekOption/AccountReadDelay (0.00s)
+        --- PASS: TestReOpen/WithSeekOption/AccountReadError (0.00s)
+    --- PASS: TestReOpen/UnknownSize (0.00s)
+        --- PASS: TestReOpen/UnknownSize/Basics (0.00s)
+        --- PASS: TestReOpen/UnknownSize/ErrorAtStart (0.00s)
+        --- PASS: TestReOpen/UnknownSize/WithErrors (0.00s)
+        --- PASS: TestReOpen/UnknownSize/TooManyErrors (0.00s)
+        --- PASS: TestReOpen/UnknownSize/Seek (0.00s)
+        --- PASS: TestReOpen/UnknownSize/AccountRead (0.00s)
+        --- PASS: TestReOpen/UnknownSize/AccountReadDelay (0.00s)
+        --- PASS: TestReOpen/UnknownSize/AccountReadError (0.00s)
+=== RUN   TestCheck
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+=== RUN   TestCheck/1
+=== RUN   TestCheck/2
+=== RUN   TestCheck/3
+=== RUN   TestCheck/4
+=== RUN   TestCheck/5
+=== RUN   TestCheck/6
+=== RUN   TestCheck/7
+--- PASS: TestCheck (26.72s)
+    --- PASS: TestCheck/1 (0.58s)
+    --- PASS: TestCheck/2 (0.54s)
+    --- PASS: TestCheck/3 (0.55s)
+    --- PASS: TestCheck/4 (0.61s)
+    --- PASS: TestCheck/5 (0.51s)
+    --- PASS: TestCheck/6 (0.49s)
+    --- PASS: TestCheck/7 (0.64s)
+=== RUN   TestCheckFsError
+2025/08/11 20:57:37 ERROR : Local file system at /home/user/Desktop/rclone-folderfort/fs/operations/nonexistent: error reading source root directory: directory not found
+2025/08/11 20:57:37 NOTICE: Local file system at /home/user/Desktop/rclone-folderfort/fs/operations/nonexistent: 0 differences found
+2025/08/11 20:57:37 NOTICE: Local file system at /home/user/Desktop/rclone-folderfort/fs/operations/nonexistent: 2 errors while checking
+--- PASS: TestCheckFsError (0.00s)
+=== RUN   TestCheckDownload
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+=== RUN   TestCheckDownload/1
+=== RUN   TestCheckDownload/2
+=== RUN   TestCheckDownload/3
+=== RUN   TestCheckDownload/4
+=== RUN   TestCheckDownload/5
+=== RUN   TestCheckDownload/6
+=== RUN   TestCheckDownload/7
+--- PASS: TestCheckDownload (38.43s)
+    --- PASS: TestCheckDownload/1 (1.99s)
+    --- PASS: TestCheckDownload/2 (2.31s)
+    --- PASS: TestCheckDownload/3 (2.34s)
+    --- PASS: TestCheckDownload/4 (2.45s)
+    --- PASS: TestCheckDownload/5 (2.33s)
+    --- PASS: TestCheckDownload/6 (2.18s)
+    --- PASS: TestCheckDownload/7 (2.34s)
+=== RUN   TestCheckSizeOnly
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+=== RUN   TestCheckSizeOnly/1
+=== RUN   TestCheckSizeOnly/2
+=== RUN   TestCheckSizeOnly/3
+=== RUN   TestCheckSizeOnly/4
+=== RUN   TestCheckSizeOnly/5
+=== RUN   TestCheckSizeOnly/6
+=== RUN   TestCheckSizeOnly/7
+--- PASS: TestCheckSizeOnly (25.57s)
+    --- PASS: TestCheckSizeOnly/1 (0.75s)
+    --- PASS: TestCheckSizeOnly/2 (0.59s)
+    --- PASS: TestCheckSizeOnly/3 (0.51s)
+    --- PASS: TestCheckSizeOnly/4 (0.50s)
+    --- PASS: TestCheckSizeOnly/5 (0.49s)
+    --- PASS: TestCheckSizeOnly/6 (0.57s)
+    --- PASS: TestCheckSizeOnly/7 (0.61s)
+=== RUN   TestCheckEqualReaders
+--- PASS: TestCheckEqualReaders (0.00s)
+=== RUN   TestParseSumFile
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+2025/08/11 20:58:48 NOTICE: test.sum: improperly formatted checksum line 4
+2025/08/11 20:58:48 NOTICE: test.sum: improperly formatted checksum line 5
+2025/08/11 20:58:48 NOTICE: test.sum: improperly formatted checksum line 6
+2025/08/11 20:58:48 NOTICE: test.sum: 2 warning(s) suppressed...
+2025/08/11 20:58:54 NOTICE: test.sum: improperly formatted checksum line 4
+2025/08/11 20:58:54 NOTICE: test.sum: improperly formatted checksum line 5
+2025/08/11 20:58:54 NOTICE: test.sum: improperly formatted checksum line 6
+2025/08/11 20:58:54 NOTICE: test.sum: 2 warning(s) suppressed...
+--- PASS: TestParseSumFile (14.64s)
+=== RUN   TestCheckSum
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    check_test.go:350: FolderFort root 'rclone-test-taculif6jugo/data' lacks md5, skipping
+--- SKIP: TestCheckSum (2.29s)
+=== RUN   TestCheckSumDownload
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+=== RUN   TestCheckSumDownload/subtest1
+=== RUN   TestCheckSumDownload/subtest2
+=== RUN   TestCheckSumDownload/subtest3
+=== RUN   TestCheckSumDownload/subtest4
+=== RUN   TestCheckSumDownload/subtest5
+=== RUN   TestCheckSumDownload/subtest6
+=== RUN   TestCheckSumDownload/subtest7
+--- PASS: TestCheckSumDownload (105.03s)
+    --- PASS: TestCheckSumDownload/subtest1 (4.99s)
+    --- PASS: TestCheckSumDownload/subtest2 (4.83s)
+    --- PASS: TestCheckSumDownload/subtest3 (4.69s)
+    --- PASS: TestCheckSumDownload/subtest4 (4.92s)
+    --- PASS: TestCheckSumDownload/subtest5 (4.57s)
+    --- PASS: TestCheckSumDownload/subtest6 (4.88s)
+    --- PASS: TestCheckSumDownload/subtest7 (4.71s)
+=== RUN   TestApplyTransforms
+    run.go:180: Remote "FolderFort root 'rclone-test-cowigij0kuqi'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone4038337735", Modify Window "876000h0m0s"
+upper checkfile vs. lower remote (without normalization)
+2025/08/11 21:00:50 ERROR : hello, world!: sum not found
+2025/08/11 21:00:50 ERROR : HELLO, WORLD!: file not in FolderFort root 'rclone-test-cowigij0kuqi'
+2025/08/11 21:00:50 NOTICE: FolderFort root 'rclone-test-cowigij0kuqi': 1 files missing
+2025/08/11 21:00:50 NOTICE: 1 hashes missing
+2025/08/11 21:00:50 NOTICE: FolderFort root 'rclone-test-cowigij0kuqi': 1 differences found
+2025/08/11 21:00:50 NOTICE: FolderFort root 'rclone-test-cowigij0kuqi': 2 errors while checking
+upper checkfile vs. lower remote (with normalization)
+2025/08/11 21:00:52 NOTICE: FolderFort root 'rclone-test-cowigij0kuqi': 0 differences found
+2025/08/11 21:00:52 NOTICE: FolderFort root 'rclone-test-cowigij0kuqi': 1 matching files
+    run.go:180: Remote "FolderFort root 'rclone-test-dicucel3mudi'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone1458697062", Modify Window "876000h0m0s"
+lower checkfile vs. upper remote (without normalization)
+2025/08/11 21:01:00 ERROR : HELLO, WORLD!: sum not found
+2025/08/11 21:01:00 ERROR : hello, world!: file not in FolderFort root 'rclone-test-dicucel3mudi'
+2025/08/11 21:01:00 NOTICE: FolderFort root 'rclone-test-dicucel3mudi': 1 files missing
+2025/08/11 21:01:00 NOTICE: 1 hashes missing
+2025/08/11 21:01:00 NOTICE: FolderFort root 'rclone-test-dicucel3mudi': 1 differences found
+2025/08/11 21:01:00 NOTICE: FolderFort root 'rclone-test-dicucel3mudi': 2 errors while checking
+lower checkfile vs. upper remote (with normalization)
+2025/08/11 21:01:02 NOTICE: FolderFort root 'rclone-test-dicucel3mudi': 0 differences found
+2025/08/11 21:01:02 NOTICE: FolderFort root 'rclone-test-dicucel3mudi': 1 matching files
+    run.go:180: Remote "FolderFort root 'rclone-test-givased3fake'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone448139036", Modify Window "876000h0m0s"
+lower checkfile vs. upperlowermixed remote (without normalization)
+2025/08/11 21:01:09 ERROR : HeLlO, wOrLd!: sum not found
+2025/08/11 21:01:09 ERROR : hello, world!: file not in FolderFort root 'rclone-test-givased3fake'
+2025/08/11 21:01:09 NOTICE: FolderFort root 'rclone-test-givased3fake': 1 files missing
+2025/08/11 21:01:09 NOTICE: 1 hashes missing
+2025/08/11 21:01:09 NOTICE: FolderFort root 'rclone-test-givased3fake': 1 differences found
+2025/08/11 21:01:09 NOTICE: FolderFort root 'rclone-test-givased3fake': 2 errors while checking
+lower checkfile vs. upperlowermixed remote (with normalization)
+2025/08/11 21:01:11 NOTICE: FolderFort root 'rclone-test-givased3fake': 0 differences found
+2025/08/11 21:01:11 NOTICE: FolderFort root 'rclone-test-givased3fake': 1 matching files
+    run.go:180: Remote "FolderFort root 'rclone-test-yiwudiq4zeha'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2024561375", Modify Window "876000h0m0s"
+upperlowermixed checkfile vs. upper remote (without normalization)
+2025/08/11 21:01:18 ERROR : HELLO, WORLD!: sum not found
+2025/08/11 21:01:18 ERROR : HeLlO, wOrLd!: file not in FolderFort root 'rclone-test-yiwudiq4zeha'
+2025/08/11 21:01:18 NOTICE: FolderFort root 'rclone-test-yiwudiq4zeha': 1 files missing
+2025/08/11 21:01:18 NOTICE: 1 hashes missing
+2025/08/11 21:01:18 NOTICE: FolderFort root 'rclone-test-yiwudiq4zeha': 1 differences found
+2025/08/11 21:01:18 NOTICE: FolderFort root 'rclone-test-yiwudiq4zeha': 2 errors while checking
+upperlowermixed checkfile vs. upper remote (with normalization)
+2025/08/11 21:01:21 NOTICE: FolderFort root 'rclone-test-yiwudiq4zeha': 0 differences found
+2025/08/11 21:01:21 NOTICE: FolderFort root 'rclone-test-yiwudiq4zeha': 1 matching files
+    run.go:180: Remote "FolderFort root 'rclone-test-qujeyaf5yohi'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3433272179", Modify Window "876000h0m0s"
+NFD checkfile vs. NFC remote (without normalization)
+2025/08/11 21:01:28 ERROR : 測試_Русский___ě_áñ: sum not found
+2025/08/11 21:01:28 ERROR : 測試_Русский___ě_áñ: file not in FolderFort root 'rclone-test-qujeyaf5yohi'
+2025/08/11 21:01:28 NOTICE: FolderFort root 'rclone-test-qujeyaf5yohi': 1 files missing
+2025/08/11 21:01:28 NOTICE: 1 hashes missing
+2025/08/11 21:01:28 NOTICE: FolderFort root 'rclone-test-qujeyaf5yohi': 1 differences found
+2025/08/11 21:01:28 NOTICE: FolderFort root 'rclone-test-qujeyaf5yohi': 2 errors while checking
+NFD checkfile vs. NFC remote (with normalization)
+2025/08/11 21:01:31 NOTICE: FolderFort root 'rclone-test-qujeyaf5yohi': 0 differences found
+2025/08/11 21:01:31 NOTICE: FolderFort root 'rclone-test-qujeyaf5yohi': 1 matching files
+    run.go:180: Remote "FolderFort root 'rclone-test-jumayiz8raru'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone4294238226", Modify Window "876000h0m0s"
+NFC checkfile vs. NFD remote (without normalization)
+2025/08/11 21:01:38 ERROR : 測試_Русский___ě_áñ: sum not found
+2025/08/11 21:01:38 ERROR : 測試_Русский___ě_áñ: file not in FolderFort root 'rclone-test-jumayiz8raru'
+2025/08/11 21:01:38 NOTICE: FolderFort root 'rclone-test-jumayiz8raru': 1 files missing
+2025/08/11 21:01:38 NOTICE: 1 hashes missing
+2025/08/11 21:01:38 NOTICE: FolderFort root 'rclone-test-jumayiz8raru': 1 differences found
+2025/08/11 21:01:38 NOTICE: FolderFort root 'rclone-test-jumayiz8raru': 2 errors while checking
+NFC checkfile vs. NFD remote (with normalization)
+2025/08/11 21:01:40 NOTICE: FolderFort root 'rclone-test-jumayiz8raru': 0 differences found
+2025/08/11 21:01:40 NOTICE: FolderFort root 'rclone-test-jumayiz8raru': 1 matching files
+    run.go:180: Remote "FolderFort root 'rclone-test-yolalid9sudi'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone754641098", Modify Window "876000h0m0s"
+NFDx2 checkfile vs. both remote (without normalization)
+2025/08/11 21:01:47 ERROR : 測試_Русский___ě_áñ測試_Русский___ě_áñ: sum not found
+2025/08/11 21:01:47 ERROR : 測試_Русский___ě_áñ測試_Русский___ě_áñ: file not in FolderFort root 'rclone-test-yolalid9sudi'
+2025/08/11 21:01:47 NOTICE: FolderFort root 'rclone-test-yolalid9sudi': 1 files missing
+2025/08/11 21:01:47 NOTICE: 1 hashes missing
+2025/08/11 21:01:47 NOTICE: FolderFort root 'rclone-test-yolalid9sudi': 1 differences found
+2025/08/11 21:01:47 NOTICE: FolderFort root 'rclone-test-yolalid9sudi': 2 errors while checking
+NFDx2 checkfile vs. both remote (with normalization)
+2025/08/11 21:01:49 NOTICE: FolderFort root 'rclone-test-yolalid9sudi': 0 differences found
+2025/08/11 21:01:49 NOTICE: FolderFort root 'rclone-test-yolalid9sudi': 1 matching files
+    run.go:180: Remote "FolderFort root 'rclone-test-sipewuv4jama'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone751736779", Modify Window "876000h0m0s"
+NFCx2 checkfile vs. both remote (without normalization)
+2025/08/11 21:01:56 ERROR : 測試_Русский___ě_áñ測試_Русский___ě_áñ: sum not found
+2025/08/11 21:01:56 ERROR : 測試_Русский___ě_áñ測試_Русский___ě_áñ: file not in FolderFort root 'rclone-test-sipewuv4jama'
+2025/08/11 21:01:56 NOTICE: FolderFort root 'rclone-test-sipewuv4jama': 1 files missing
+2025/08/11 21:01:56 NOTICE: 1 hashes missing
+2025/08/11 21:01:56 NOTICE: FolderFort root 'rclone-test-sipewuv4jama': 1 differences found
+2025/08/11 21:01:56 NOTICE: FolderFort root 'rclone-test-sipewuv4jama': 2 errors while checking
+NFCx2 checkfile vs. both remote (with normalization)
+2025/08/11 21:01:59 NOTICE: FolderFort root 'rclone-test-sipewuv4jama': 0 differences found
+2025/08/11 21:01:59 NOTICE: FolderFort root 'rclone-test-sipewuv4jama': 1 matching files
+    run.go:180: Remote "FolderFort root 'rclone-test-lebehep0sequ'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone1891711911", Modify Window "876000h0m0s"
+both checkfile vs. NFDx2 remote (without normalization)
+2025/08/11 21:02:06 ERROR : 測試_Русский___ě_áñ測試_Русский___ě_áñ: sum not found
+2025/08/11 21:02:06 ERROR : 測試_Русский___ě_áñ測試_Русский___ě_áñ: file not in FolderFort root 'rclone-test-lebehep0sequ'
+2025/08/11 21:02:06 NOTICE: FolderFort root 'rclone-test-lebehep0sequ': 1 files missing
+2025/08/11 21:02:06 NOTICE: 1 hashes missing
+2025/08/11 21:02:06 NOTICE: FolderFort root 'rclone-test-lebehep0sequ': 1 differences found
+2025/08/11 21:02:06 NOTICE: FolderFort root 'rclone-test-lebehep0sequ': 2 errors while checking
+both checkfile vs. NFDx2 remote (with normalization)
+2025/08/11 21:02:08 NOTICE: FolderFort root 'rclone-test-lebehep0sequ': 0 differences found
+2025/08/11 21:02:08 NOTICE: FolderFort root 'rclone-test-lebehep0sequ': 1 matching files
+    run.go:180: Remote "FolderFort root 'rclone-test-meminec4fujo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone3633798997", Modify Window "876000h0m0s"
+both checkfile vs. NFCx2 remote (without normalization)
+2025/08/11 21:02:16 ERROR : 測試_Русский___ě_áñ測試_Русский___ě_áñ: sum not found
+2025/08/11 21:02:16 ERROR : 測試_Русский___ě_áñ測試_Русский___ě_áñ: file not in FolderFort root 'rclone-test-meminec4fujo'
+2025/08/11 21:02:16 NOTICE: FolderFort root 'rclone-test-meminec4fujo': 1 files missing
+2025/08/11 21:02:16 NOTICE: 1 hashes missing
+2025/08/11 21:02:16 NOTICE: FolderFort root 'rclone-test-meminec4fujo': 1 differences found
+2025/08/11 21:02:16 NOTICE: FolderFort root 'rclone-test-meminec4fujo': 2 errors while checking
+both checkfile vs. NFCx2 remote (with normalization)
+2025/08/11 21:02:18 NOTICE: FolderFort root 'rclone-test-meminec4fujo': 0 differences found
+2025/08/11 21:02:18 NOTICE: FolderFort root 'rclone-test-meminec4fujo': 1 matching files
+--- PASS: TestApplyTransforms (103.93s)
+=== RUN   TestTruncateString
+--- PASS: TestTruncateString (0.00s)
+=== RUN   TestCopyFile
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestCopyFile (15.16s)
+=== RUN   TestCopyLongFile
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    copy_test.go:153: Test only runs on local
+--- SKIP: TestCopyLongFile (1.13s)
+=== RUN   TestCopyFileBackupDir
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestCopyFileBackupDir (28.06s)
+=== RUN   TestCopyFileCompareDest
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestCopyFileCompareDest (71.07s)
+=== RUN   TestCopyFileCopyDest
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestCopyFileCopyDest (82.33s)
+=== RUN   TestCopyInplace
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    copy_test.go:370: Partial uploads not supported
+--- SKIP: TestCopyInplace (1.13s)
+=== RUN   TestCopyLongFileName
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    copy_test.go:403: Partial uploads not supported
+--- SKIP: TestCopyLongFileName (1.13s)
+=== RUN   TestCopyFileMaxTransfer
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+2025/08/11 21:05:57 ERROR : TestCopyFileMaxTransfer/file2: Failed to copy: failed to upload file: Post "https://eu2.folderfort.com/api/v1/uploads?parentId=2811642": max transfer limit reached as set by --max-transfer
+--- PASS: TestCopyFileMaxTransfer (24.99s)
+=== RUN   TestDeduplicateInteractive
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    dedupe_test.go:24: Can't test deduplicate - no duplicate files possible
+--- SKIP: TestDeduplicateInteractive (1.13s)
+=== RUN   TestDeduplicateSkip
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    dedupe_test.go:24: Can't test deduplicate - no duplicate files possible
+--- SKIP: TestDeduplicateSkip (1.12s)
+=== RUN   TestDeduplicateSizeOnly
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    dedupe_test.go:24: Can't test deduplicate - no duplicate files possible
+--- SKIP: TestDeduplicateSizeOnly (1.24s)
+=== RUN   TestDeduplicateFirst
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    dedupe_test.go:24: Can't test deduplicate - no duplicate files possible
+--- SKIP: TestDeduplicateFirst (1.02s)
+=== RUN   TestDeduplicateNewest
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    dedupe_test.go:24: Can't test deduplicate - no duplicate files possible
+--- SKIP: TestDeduplicateNewest (1.05s)
+=== RUN   TestDeduplicateNewestByHash
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    dedupe_test.go:36: Can't run this test without a hash
+--- SKIP: TestDeduplicateNewestByHash (1.02s)
+=== RUN   TestDeduplicateOldest
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    dedupe_test.go:24: Can't test deduplicate - no duplicate files possible
+--- SKIP: TestDeduplicateOldest (1.20s)
+=== RUN   TestDeduplicateLargest
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    dedupe_test.go:24: Can't test deduplicate - no duplicate files possible
+--- SKIP: TestDeduplicateLargest (1.23s)
+=== RUN   TestDeduplicateSmallest
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    dedupe_test.go:24: Can't test deduplicate - no duplicate files possible
+--- SKIP: TestDeduplicateSmallest (1.13s)
+=== RUN   TestDeduplicateRename
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    dedupe_test.go:24: Can't test deduplicate - no duplicate files possible
+--- SKIP: TestDeduplicateRename (1.23s)
+=== RUN   TestMergeDirs
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    dedupe_test.go:256: Can't merge directories
+--- SKIP: TestMergeDirs (1.13s)
+=== RUN   TestListDirSorted
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestListDirSorted (59.89s)
+=== RUN   TestListDirSortedFn
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestListDirSortedFn (60.13s)
+=== RUN   TestListJSON
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+=== RUN   TestListJSON/Default
+=== RUN   TestListJSON/FilesOnly
+=== RUN   TestListJSON/DirsOnly
+=== RUN   TestListJSON/Recurse
+=== RUN   TestListJSON/SubDir
+=== RUN   TestListJSON/NoModTime
+=== RUN   TestListJSON/NoMimeType
+=== RUN   TestListJSON/ShowHash
+=== RUN   TestListJSON/HashTypes
+2025/08/11 21:08:42 ERROR : file1: Failed to read hash: hash type not supported
+=== RUN   TestListJSON/Metadata
+--- PASS: TestListJSON (22.01s)
+    --- PASS: TestListJSON/Default (0.51s)
+    --- PASS: TestListJSON/FilesOnly (0.51s)
+    --- PASS: TestListJSON/DirsOnly (0.51s)
+    --- PASS: TestListJSON/Recurse (1.39s)
+    --- PASS: TestListJSON/SubDir (0.82s)
+    --- PASS: TestListJSON/NoModTime (0.61s)
+    --- PASS: TestListJSON/NoMimeType (0.52s)
+    --- PASS: TestListJSON/ShowHash (0.54s)
+    --- PASS: TestListJSON/HashTypes (0.58s)
+    --- PASS: TestListJSON/Metadata (0.61s)
+=== RUN   TestStatJSON
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+=== RUN   TestStatJSON/Root
+=== RUN   TestStatJSON/RootFilesOnly
+=== RUN   TestStatJSON/RootDirsOnly
+=== RUN   TestStatJSON/Dir
+=== RUN   TestStatJSON/DirWithTrailingSlash
+=== RUN   TestStatJSON/File
+=== RUN   TestStatJSON/NotFound
+=== RUN   TestStatJSON/DirFilesOnly
+=== RUN   TestStatJSON/FileFilesOnly
+=== RUN   TestStatJSON/NotFoundFilesOnly
+=== RUN   TestStatJSON/DirDirsOnly
+=== RUN   TestStatJSON/FileDirsOnly
+=== RUN   TestStatJSON/NotFoundDirsOnly
+=== RUN   TestStatJSON/RootNotFound
+--- PASS: TestStatJSON (26.02s)
+    --- PASS: TestStatJSON/Root (0.51s)
+    --- PASS: TestStatJSON/RootFilesOnly (0.00s)
+    --- PASS: TestStatJSON/RootDirsOnly (0.61s)
+    --- PASS: TestStatJSON/Dir (1.13s)
+    --- PASS: TestStatJSON/DirWithTrailingSlash (0.61s)
+    --- PASS: TestStatJSON/File (0.62s)
+    --- PASS: TestStatJSON/NotFound (1.13s)
+    --- PASS: TestStatJSON/DirFilesOnly (0.62s)
+    --- PASS: TestStatJSON/FileFilesOnly (0.61s)
+    --- PASS: TestStatJSON/NotFoundFilesOnly (0.61s)
+    --- PASS: TestStatJSON/DirDirsOnly (0.61s)
+    --- PASS: TestStatJSON/FileDirsOnly (0.62s)
+    --- PASS: TestStatJSON/NotFoundDirsOnly (0.51s)
+    --- PASS: TestStatJSON/RootNotFound (1.54s)
+=== RUN   TestMkdir
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestMkdir (2.35s)
+=== RUN   TestLsd
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestLsd (10.69s)
+=== RUN   TestLs
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestLs (14.19s)
+=== RUN   TestLsWithFilesFrom
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestLsWithFilesFrom (12.81s)
+=== RUN   TestLsLong
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestLsLong (12.69s)
+=== RUN   TestHashSums
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestHashSums (11.49s)
+=== RUN   TestHashSumsWithErrors
+2025/08/11 21:10:17 ERROR : file1: hash unsupported: hash type not supported
+--- PASS: TestHashSumsWithErrors (0.00s)
+=== RUN   TestHashStream
+--- PASS: TestHashStream (0.00s)
+=== RUN   TestSuffixName
+--- PASS: TestSuffixName (0.00s)
+=== RUN   TestCount
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestCount (21.94s)
+=== RUN   TestDelete
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestDelete (18.68s)
+=== RUN   TestMaxDelete
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+2025/08/11 21:11:13 ERROR : small: Got fatal error on delete: --max-delete threshold reached
+--- PASS: TestMaxDelete (19.25s)
+=== RUN   TestMaxDeleteSizeLargeFile
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+2025/08/11 21:11:33 ERROR : large: Got fatal error on delete: --max-delete-size threshold reached
+--- PASS: TestMaxDeleteSizeLargeFile (19.25s)
+=== RUN   TestMaxDeleteSize
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+2025/08/11 21:11:53 ERROR : small: Got fatal error on delete: --max-delete-size threshold reached
+--- PASS: TestMaxDeleteSize (19.97s)
+=== RUN   TestReadFile
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestReadFile (10.34s)
+=== RUN   TestRetry
+--- PASS: TestRetry (0.05s)
+=== RUN   TestCat
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestCat (34.57s)
+=== RUN   TestPurge
+    run.go:180: Remote "FolderFort root 'rclone-test-jasixot0reda'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2335379113", Modify Window "876000h0m0s"
+2025/08/11 21:13:13 ERROR : error listing: directory not found
+2025/08/11 21:13:13 NOTICE: purge failed: directory not found
+--- PASS: TestPurge (32.24s)
+=== RUN   TestRmdirsNoLeaveRoot
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+2025/08/11 21:14:11 ERROR : error listing: directory not found
+2025/08/11 21:14:12 ERROR : error listing: directory not found
+--- PASS: TestRmdirsNoLeaveRoot (58.58s)
+=== RUN   TestRmdirsLeaveRoot
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestRmdirsLeaveRoot (19.59s)
+=== RUN   TestRmdirsWithFilter
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestRmdirsWithFilter (20.08s)
+=== RUN   TestCopyURL
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestCopyURL (24.84s)
+=== RUN   TestCopyURLToWriter
+--- PASS: TestCopyURLToWriter (0.00s)
+=== RUN   TestMoveFile
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestMoveFile (14.64s)
+=== RUN   TestMoveFileWithIgnoreExisting
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestMoveFileWithIgnoreExisting (8.60s)
+=== RUN   TestCaseInsensitiveMoveFile
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestCaseInsensitiveMoveFile (1.13s)
+=== RUN   TestCaseInsensitiveMoveFileDryRun
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestCaseInsensitiveMoveFileDryRun (1.23s)
+=== RUN   TestMoveFileBackupDir
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestMoveFileBackupDir (26.42s)
+=== RUN   TestSameConfig
+--- PASS: TestSameConfig (0.00s)
+=== RUN   TestSame
+--- PASS: TestSame (0.00s)
+=== RUN   TestOverlappingFilterCheckWithoutFilter
+--- PASS: TestOverlappingFilterCheckWithoutFilter (0.00s)
+=== RUN   TestOverlappingFilterCheckWithFilter
+--- PASS: TestOverlappingFilterCheckWithFilter (0.00s)
+=== RUN   TestListFormat
+--- PASS: TestListFormat (0.00s)
+=== RUN   TestDirMove
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestDirMove (112.24s)
+=== RUN   TestGetFsInfo
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestGetFsInfo (1.23s)
+=== RUN   TestRcat
+=== RUN   TestRcat/withChecksum=false,ignoreChecksum=false
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+2025/08/11 21:18:09 NOTICE: FolderFort root 'rclone-test-taculif6jugo': --checksum is in use but the source and destination have no hashes in common; falling back to --size-only
+=== RUN   TestRcat/withChecksum=true,ignoreChecksum=false
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+=== RUN   TestRcat/withChecksum=false,ignoreChecksum=true
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+=== RUN   TestRcat/withChecksum=true,ignoreChecksum=true
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestRcat (53.76s)
+    --- PASS: TestRcat/withChecksum=false,ignoreChecksum=false (14.45s)
+    --- PASS: TestRcat/withChecksum=true,ignoreChecksum=false (12.28s)
+    --- PASS: TestRcat/withChecksum=false,ignoreChecksum=true (13.74s)
+    --- PASS: TestRcat/withChecksum=true,ignoreChecksum=true (13.29s)
+=== RUN   TestRcatMetadata
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    operations_test.go:1532: Skipping as destination doesn't support user metadata
+--- SKIP: TestRcatMetadata (1.16s)
+=== RUN   TestRcatSize
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestRcatSize (13.07s)
+=== RUN   TestRcatSizeMetadata
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    operations_test.go:1613: Skipping as destination doesn't support user metadata
+--- SKIP: TestRcatSizeMetadata (1.03s)
+=== RUN   TestTouchDir
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    operations_test.go:1665: Skipping test as remote does not support modtime
+--- SKIP: TestTouchDir (1.22s)
+=== RUN   TestMkdirMetadata
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    operations_test.go:1703: Skipping test as remote does not support MkdirMetadata
+--- SKIP: TestMkdirMetadata (1.23s)
+=== RUN   TestMkdirModTime
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    operations_test.go:1722: Skipping test as remote does not support DirSetModTime or MkdirMetadata
+--- SKIP: TestMkdirModTime (1.09s)
+=== RUN   TestCopyDirMetadata
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    operations_test.go:1743: Skipping test as remote does not support WriteDirMetadata or MkdirMetadata
+--- SKIP: TestCopyDirMetadata (1.14s)
+=== RUN   TestSetDirModTime
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    operations_test.go:1779: Skipping test as remote does not support DirSetModTime or WriteDirSetModTime
+--- SKIP: TestSetDirModTime (0.97s)
+=== RUN   TestDirsEqual
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+    operations_test.go:1823: Skipping test as remote does not support WriteDirMetadata or MkdirMetadata
+--- SKIP: TestDirsEqual (1.10s)
+=== RUN   TestRemoveExisting
+    run.go:180: Remote "FolderFort root 'rclone-test-taculif6jugo'", Local "Local file system at /tmp/nix-shell.g5uZGA/rclone2508781309", Modify Window "876000h0m0s"
+--- PASS: TestRemoveExisting (30.21s)
+=== RUN   TestRcAbout
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcAbout (0.00s)
+=== RUN   TestRcCleanup
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcCleanup (0.00s)
+=== RUN   TestRcCopyfile
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcCopyfile (0.00s)
+=== RUN   TestRcCopyurl
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcCopyurl (0.00s)
+=== RUN   TestRcDelete
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcDelete (0.00s)
+=== RUN   TestRcDeletefile
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcDeletefile (0.00s)
+=== RUN   TestRcList
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcList (0.00s)
+=== RUN   TestRcStat
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcStat (0.00s)
+=== RUN   TestRcSetTier
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcSetTier (0.00s)
+=== RUN   TestRcSetTierFile
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcSetTierFile (0.00s)
+=== RUN   TestRcMkdir
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcMkdir (0.00s)
+=== RUN   TestRcMovefile
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcMovefile (0.00s)
+=== RUN   TestRcPurge
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcPurge (0.00s)
+=== RUN   TestRcRmdir
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcRmdir (0.00s)
+=== RUN   TestRcRmdirs
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcRmdirs (0.00s)
+=== RUN   TestRcSize
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcSize (0.00s)
+=== RUN   TestRcPublicLink
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcPublicLink (0.00s)
+=== RUN   TestRcFsInfo
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcFsInfo (0.00s)
+=== RUN   TestUploadFile
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestUploadFile (0.00s)
+=== RUN   TestRcCommand
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcCommand (0.00s)
+=== RUN   TestRcDu
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcDu (0.00s)
+=== RUN   TestRcCheck
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcCheck (0.00s)
+=== RUN   TestRcHashsum
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcHashsum (0.00s)
+=== RUN   TestRcHashsumFile
+    rc_test.go:30: Skipping test on non local remote
+--- SKIP: TestRcHashsumFile (0.00s)
+PASS
+ok  	github.com/rclone/rclone/fs/operations	1359.318s

@@ -1,0 +1,377 @@
+=== RUN   TestIntegration
+    fstests.go:438: Using remote "fff:"
+2025/08/11 20:43:11 NOTICE: fff: Starting server
+=== RUN   TestIntegration/FsCheckWrap
+    fstests.go:479: Not a wrapping Fs
+=== RUN   TestIntegration/FsCommand
+=== RUN   TestIntegration/FsRmdirNotFound
+=== RUN   TestIntegration/FsString
+=== RUN   TestIntegration/FsName
+=== RUN   TestIntegration/FsRoot
+=== RUN   TestIntegration/FsRmdirEmpty
+=== RUN   TestIntegration/FsMkdir
+=== RUN   TestIntegration/FsMkdir/FsMkdirRmdirSubdir
+=== RUN   TestIntegration/FsMkdir/FsListEmpty
+=== RUN   TestIntegration/FsMkdir/FsListDirEmpty
+=== RUN   TestIntegration/FsMkdir/FsListRDirEmpty
+    fstests.go:399: FS has no ListR interface
+=== RUN   TestIntegration/FsMkdir/FsListDirNotFound
+2025/08/11 20:43:26 ERROR : does not exist: error listing: directory not found
+=== RUN   TestIntegration/FsMkdir/FsListRDirNotFound
+    fstests.go:399: FS has no ListR interface
+=== RUN   TestIntegration/FsMkdir/FsEncoding
+=== RUN   TestIntegration/FsMkdir/FsEncoding/control_chars
+    fstests.go:707: testing "␀␁␂␃␄␅␆␇␈␉␊␋␌␍␎␏␐␑␒␓␔␕␖␗␘␙␚␛␜␝␞␟␡"
+=== RUN   TestIntegration/FsMkdir/FsEncoding/dot
+    fstests.go:707: testing "．"
+=== RUN   TestIntegration/FsMkdir/FsEncoding/dot_dot
+    fstests.go:707: testing "．．"
+=== RUN   TestIntegration/FsMkdir/FsEncoding/punctuation
+    fstests.go:707: testing "!\"#$%&'()*+,-.／:;<=>?@[\\]^_`{|}~"
+=== RUN   TestIntegration/FsMkdir/FsEncoding/leading_space
+    fstests.go:707: testing " leading space"
+=== RUN   TestIntegration/FsMkdir/FsEncoding/leading_tilde
+    fstests.go:707: testing "~leading tilde"
+=== RUN   TestIntegration/FsMkdir/FsEncoding/leading_CR
+    fstests.go:707: testing "␍leading CR"
+=== RUN   TestIntegration/FsMkdir/FsEncoding/leading_LF
+    fstests.go:707: testing "␊leading LF"
+=== RUN   TestIntegration/FsMkdir/FsEncoding/leading_HT
+    fstests.go:707: testing "␉leading HT"
+=== RUN   TestIntegration/FsMkdir/FsEncoding/leading_VT
+    fstests.go:707: testing "␋leading VT"
+=== RUN   TestIntegration/FsMkdir/FsEncoding/leading_dot
+    fstests.go:707: testing ".leading dot"
+=== RUN   TestIntegration/FsMkdir/FsEncoding/trailing_space
+    fstests.go:707: testing "trailing space "
+=== RUN   TestIntegration/FsMkdir/FsEncoding/trailing_CR
+    fstests.go:707: testing "trailing CR␍"
+=== RUN   TestIntegration/FsMkdir/FsEncoding/trailing_LF
+    fstests.go:707: testing "trailing LF␊"
+=== RUN   TestIntegration/FsMkdir/FsEncoding/trailing_HT
+    fstests.go:707: testing "trailing HT␉"
+=== RUN   TestIntegration/FsMkdir/FsEncoding/trailing_VT
+    fstests.go:707: testing "trailing VT␋"
+=== RUN   TestIntegration/FsMkdir/FsEncoding/trailing_dot
+    fstests.go:707: testing "trailing dot."
+=== RUN   TestIntegration/FsMkdir/FsEncoding/invalid_UTF-8
+    fstests.go:707: testing "invalid utf-8\xfe"
+=== RUN   TestIntegration/FsMkdir/FsEncoding/URL_encoding
+    fstests.go:707: testing "test%46.txt"
+=== RUN   TestIntegration/FsMkdir/FsNewObjectNotFound
+=== RUN   TestIntegration/FsMkdir/FsPutError
+=== RUN   TestIntegration/FsMkdir/FsPutZeroLength
+=== RUN   TestIntegration/FsMkdir/FsOpenWriterAt
+    fstests.go:786: FS has no OpenWriterAt interface
+=== RUN   TestIntegration/FsMkdir/FsOpenChunkWriter
+    fstests.go:819: FS has no OpenChunkWriter interface
+=== RUN   TestIntegration/FsMkdir/FsChangeNotify
+    fstests.go:868: FS has no ChangeNotify interface
+=== RUN   TestIntegration/FsMkdir/FsPutFiles
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsListDirFile2
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsListRDirFile2
+    fstests.go:399: FS has no ListR interface
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsListR
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsListRSubdir
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsListDirRoot
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsListRDirRoot
+    fstests.go:399: FS has no ListR interface
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsListSubdir
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsListRSubdir#01
+    fstests.go:399: FS has no ListR interface
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsListLevel2
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsListRLevel2
+    fstests.go:399: FS has no ListR interface
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsListFile1
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsNewObject
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsNewObjectCaseInsensitive
+    fstests.go:1121: Not Case Insensitive
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsListFile1and2
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsNewObjectDir
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsPurge
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsPurgeRoot
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsListRootedSubdir
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsCopy
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsCopy/Metadata
+    fstests.go:1289: Skipping test as can't write metadata
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsMove
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsMove/Metadata
+    fstests.go:1398: Skipping test as can't write metadata
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsDirMove
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsRmdirFull
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsPrecision
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/ObjectString
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/ObjectFs
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/ObjectRemote
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/ObjectHashes
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/ObjectModTime
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/ObjectMimeType
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/ObjectMetadata
+    fstests.go:1623: Metadata method not supported
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/ObjectSetMetadata
+    fstests.go:1694: SetMetadata method not supported
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/ObjectSetModTime
+    fstests.go:1751: can't set modified time
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/ObjectSize
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/ObjectOpen
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/ObjectOpenSeek
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/ObjectOpenRange
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/ObjectPartialRead
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/ObjectUpdate
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/ObjectStorable
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsIsFile
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsIsFile/FsRoot
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsIsFileNotFound
+2025/08/11 20:50:33 ERROR : error listing: directory not found
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FromRoot
+    fstests.go:1911: Opening root remote "fff:" path "rclone-test-lelanif9dixu" from "fff:rclone-test-lelanif9dixu"
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FromRoot/List
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FromRoot/ListEntries
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FromRoot/ListR
+    fstests.go:1945: FS has no ListR interface
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FromRoot/Put
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FromRoot/Put/Remove
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/PublicLink
+    fstests.go:2004: FS has no PublicLinker interface
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/SetTier
+    fstests.go:412: FS has no SetTier & GetTier interfaces
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/ObjectCheckWrap
+    fstests.go:2109: Not a wrapping Fs
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/Bucket
+    fstests.go:2125: Not a bucket based backend
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/ObjectRemove
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/ObjectAbout
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/FsPutStream
+    fstests.go:2299: FS has no PutStream interface
+=== RUN   TestIntegration/FsMkdir/FsPutFiles/Internal
+    fstests.go:2343: *folderfort.Fs does not implement InternalTester
+=== RUN   TestIntegration/FsMkdir/FsPutChunked
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5Mi
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5Mi/5242879
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5Mi/5242879/Streamed
+    fstests.go:2452: FS has no PutStream interface
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5Mi/5242880
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5Mi/5242880/Streamed
+    fstests.go:2452: FS has no PutStream interface
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5Mi/10485761
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5Mi/10485761/Streamed
+    fstests.go:2452: FS has no PutStream interface
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5.054Mi
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5.054Mi/5299999
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5.054Mi/5299999/Streamed
+    fstests.go:2452: FS has no PutStream interface
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5.054Mi/5300000
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5.054Mi/5300000/Streamed
+    fstests.go:2452: FS has no PutStream interface
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5.054Mi/10600001
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5.054Mi/10600001/Streamed
+    fstests.go:2452: FS has no PutStream interface
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5.055Mi
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5.055Mi/5300052
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5.055Mi/5300052/Streamed
+    fstests.go:2452: FS has no PutStream interface
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5.055Mi/5300053
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5.055Mi/5300053/Streamed
+    fstests.go:2452: FS has no PutStream interface
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5.055Mi/10600107
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/5.055Mi/10600107/Streamed
+    fstests.go:2452: FS has no PutStream interface
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/6.667Mi
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/6.667Mi/6990505
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/6.667Mi/6990505/Streamed
+    fstests.go:2452: FS has no PutStream interface
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/6.667Mi/6990506
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/6.667Mi/6990506/Streamed
+    fstests.go:2452: FS has no PutStream interface
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/6.667Mi/13981013
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/6.667Mi/13981013/Streamed
+    fstests.go:2452: FS has no PutStream interface
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/8Mi
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/8Mi/8388607
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/8Mi/8388607/Streamed
+    fstests.go:2452: FS has no PutStream interface
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/8Mi/8388608
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/8Mi/8388608/Streamed
+    fstests.go:2452: FS has no PutStream interface
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/8Mi/16777217
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/8Mi/16777217/Streamed
+    fstests.go:2452: FS has no PutStream interface
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/10Mi
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/10Mi/10485759
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/10Mi/10485759/Streamed
+    fstests.go:2452: FS has no PutStream interface
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/10Mi/10485760
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/10Mi/10485760/Streamed
+    fstests.go:2452: FS has no PutStream interface
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/10Mi/20971521
+=== RUN   TestIntegration/FsMkdir/FsPutChunked/10Mi/20971521/Streamed
+    fstests.go:2452: FS has no PutStream interface
+=== RUN   TestIntegration/FsMkdir/FsCopyChunked
+    fstests.go:2485: *folderfort.Fs does not implement SetCopyCutoff
+=== RUN   TestIntegration/FsMkdir/FsUploadUnknownSize
+=== RUN   TestIntegration/FsMkdir/FsUploadUnknownSize/FsPutUnknownSize
+=== RUN   TestIntegration/FsMkdir/FsUploadUnknownSize/FsUpdateUnknownSize
+=== RUN   TestIntegration/FsMkdir/FsRootCollapse
+=== RUN   TestIntegration/FsMkdir/FsDirSetModTime
+    fstests.go:2625: FS has no DirSetModTime interface
+=== RUN   TestIntegration/FsMkdir/FsMkdirMetadata
+    fstests.go:2668: FS has no MkdirMetadata interface
+=== RUN   TestIntegration/FsMkdir/FsDirectory
+    fstests.go:2725: FS has no Directory methods and doesn't Wrap
+2025/08/11 20:57:06 ERROR : error listing: directory not found
+=== RUN   TestIntegration/FsShutdown
+    fstests.go:2831: Shutdown method not supported
+--- PASS: TestIntegration (836.22s)
+    --- SKIP: TestIntegration/FsCheckWrap (0.00s)
+    --- PASS: TestIntegration/FsCommand (0.00s)
+    --- PASS: TestIntegration/FsRmdirNotFound (0.29s)
+    --- PASS: TestIntegration/FsString (0.00s)
+    --- PASS: TestIntegration/FsName (0.00s)
+    --- PASS: TestIntegration/FsRoot (0.00s)
+    --- PASS: TestIntegration/FsRmdirEmpty (0.85s)
+    --- PASS: TestIntegration/FsMkdir (832.73s)
+        --- PASS: TestIntegration/FsMkdir/FsMkdirRmdirSubdir (8.14s)
+        --- PASS: TestIntegration/FsMkdir/FsListEmpty (0.48s)
+        --- PASS: TestIntegration/FsMkdir/FsListDirEmpty (0.48s)
+        --- SKIP: TestIntegration/FsMkdir/FsListRDirEmpty (0.00s)
+        --- PASS: TestIntegration/FsMkdir/FsListDirNotFound (0.57s)
+        --- SKIP: TestIntegration/FsMkdir/FsListRDirNotFound (0.00s)
+        --- PASS: TestIntegration/FsMkdir/FsEncoding (194.09s)
+            --- PASS: TestIntegration/FsMkdir/FsEncoding/control_chars (10.21s)
+            --- PASS: TestIntegration/FsMkdir/FsEncoding/dot (10.37s)
+            --- PASS: TestIntegration/FsMkdir/FsEncoding/dot_dot (10.21s)
+            --- PASS: TestIntegration/FsMkdir/FsEncoding/punctuation (10.58s)
+            --- PASS: TestIntegration/FsMkdir/FsEncoding/leading_space (10.34s)
+            --- PASS: TestIntegration/FsMkdir/FsEncoding/leading_tilde (9.93s)
+            --- PASS: TestIntegration/FsMkdir/FsEncoding/leading_CR (11.24s)
+            --- PASS: TestIntegration/FsMkdir/FsEncoding/leading_LF (10.57s)
+            --- PASS: TestIntegration/FsMkdir/FsEncoding/leading_HT (9.36s)
+            --- PASS: TestIntegration/FsMkdir/FsEncoding/leading_VT (9.77s)
+            --- PASS: TestIntegration/FsMkdir/FsEncoding/leading_dot (9.60s)
+            --- PASS: TestIntegration/FsMkdir/FsEncoding/trailing_space (10.23s)
+            --- PASS: TestIntegration/FsMkdir/FsEncoding/trailing_CR (9.90s)
+            --- PASS: TestIntegration/FsMkdir/FsEncoding/trailing_LF (9.73s)
+            --- PASS: TestIntegration/FsMkdir/FsEncoding/trailing_HT (10.14s)
+            --- PASS: TestIntegration/FsMkdir/FsEncoding/trailing_VT (11.13s)
+            --- PASS: TestIntegration/FsMkdir/FsEncoding/trailing_dot (10.07s)
+            --- PASS: TestIntegration/FsMkdir/FsEncoding/invalid_UTF-8 (10.14s)
+            --- PASS: TestIntegration/FsMkdir/FsEncoding/URL_encoding (9.94s)
+        --- PASS: TestIntegration/FsMkdir/FsNewObjectNotFound (1.13s)
+        --- PASS: TestIntegration/FsMkdir/FsPutError (4.92s)
+        --- PASS: TestIntegration/FsMkdir/FsPutZeroLength (7.00s)
+        --- SKIP: TestIntegration/FsMkdir/FsOpenWriterAt (0.00s)
+        --- SKIP: TestIntegration/FsMkdir/FsOpenChunkWriter (0.00s)
+        --- SKIP: TestIntegration/FsMkdir/FsChangeNotify (0.00s)
+        --- PASS: TestIntegration/FsMkdir/FsPutFiles (252.27s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsListDirFile2 (5.53s)
+            --- SKIP: TestIntegration/FsMkdir/FsPutFiles/FsListRDirFile2 (0.00s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsListR (5.22s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsListRSubdir (4.92s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsListDirRoot (0.87s)
+            --- SKIP: TestIntegration/FsMkdir/FsPutFiles/FsListRDirRoot (0.00s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsListSubdir (3.63s)
+            --- SKIP: TestIntegration/FsMkdir/FsPutFiles/FsListRSubdir#01 (0.00s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsListLevel2 (1.54s)
+            --- SKIP: TestIntegration/FsMkdir/FsPutFiles/FsListRLevel2 (0.00s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsListFile1 (5.60s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsNewObject (0.65s)
+            --- SKIP: TestIntegration/FsMkdir/FsPutFiles/FsNewObjectCaseInsensitive (0.00s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsListFile1and2 (5.84s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsNewObjectDir (1.46s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsPurge (18.61s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsPurgeRoot (19.97s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsListRootedSubdir (21.81s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsCopy (13.31s)
+                --- SKIP: TestIntegration/FsMkdir/FsPutFiles/FsCopy/Metadata (0.00s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsMove (33.70s)
+                --- SKIP: TestIntegration/FsMkdir/FsPutFiles/FsMove/Metadata (0.00s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsDirMove (23.35s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsRmdirFull (0.62s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsPrecision (0.00s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/ObjectString (0.61s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/ObjectFs (0.61s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/ObjectRemote (0.51s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/ObjectHashes (1.23s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/ObjectModTime (0.57s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/ObjectMimeType (0.56s)
+            --- SKIP: TestIntegration/FsMkdir/FsPutFiles/ObjectMetadata (0.61s)
+            --- SKIP: TestIntegration/FsMkdir/FsPutFiles/ObjectSetMetadata (0.62s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/ObjectSetModTime (0.51s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/ObjectSize (0.61s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/ObjectOpen (2.46s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/ObjectOpenSeek (2.37s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/ObjectOpenRange (7.35s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/ObjectPartialRead (2.40s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/ObjectUpdate (7.02s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/ObjectStorable (0.61s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsIsFile (3.99s)
+                --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsIsFile/FsRoot (0.00s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FsIsFileNotFound (1.74s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/FromRoot (23.55s)
+                --- PASS: TestIntegration/FsMkdir/FsPutFiles/FromRoot/List (6.35s)
+                --- PASS: TestIntegration/FsMkdir/FsPutFiles/FromRoot/ListEntries (0.55s)
+                --- SKIP: TestIntegration/FsMkdir/FsPutFiles/FromRoot/ListR (0.00s)
+                --- PASS: TestIntegration/FsMkdir/FsPutFiles/FromRoot/Put (16.65s)
+                    --- PASS: TestIntegration/FsMkdir/FsPutFiles/FromRoot/Put/Remove (5.84s)
+            --- SKIP: TestIntegration/FsMkdir/FsPutFiles/PublicLink (0.00s)
+            --- SKIP: TestIntegration/FsMkdir/FsPutFiles/SetTier (0.00s)
+            --- SKIP: TestIntegration/FsMkdir/FsPutFiles/ObjectCheckWrap (0.00s)
+            --- SKIP: TestIntegration/FsMkdir/FsPutFiles/Bucket (0.00s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/ObjectRemove (6.76s)
+            --- PASS: TestIntegration/FsMkdir/FsPutFiles/ObjectAbout (1.58s)
+            --- SKIP: TestIntegration/FsMkdir/FsPutFiles/FsPutStream (0.00s)
+            --- SKIP: TestIntegration/FsMkdir/FsPutFiles/Internal (0.00s)
+        --- PASS: TestIntegration/FsMkdir/FsPutChunked (342.65s)
+            --- PASS: TestIntegration/FsMkdir/FsPutChunked/5Mi (49.42s)
+                --- PASS: TestIntegration/FsMkdir/FsPutChunked/5Mi/5242879 (13.89s)
+                    --- SKIP: TestIntegration/FsMkdir/FsPutChunked/5Mi/5242879/Streamed (0.00s)
+                --- PASS: TestIntegration/FsMkdir/FsPutChunked/5Mi/5242880 (14.77s)
+                    --- SKIP: TestIntegration/FsMkdir/FsPutChunked/5Mi/5242880/Streamed (0.00s)
+                --- PASS: TestIntegration/FsMkdir/FsPutChunked/5Mi/10485761 (20.76s)
+                    --- SKIP: TestIntegration/FsMkdir/FsPutChunked/5Mi/10485761/Streamed (0.00s)
+            --- PASS: TestIntegration/FsMkdir/FsPutChunked/5.054Mi (53.88s)
+                --- PASS: TestIntegration/FsMkdir/FsPutChunked/5.054Mi/5299999 (13.53s)
+                    --- SKIP: TestIntegration/FsMkdir/FsPutChunked/5.054Mi/5299999/Streamed (0.00s)
+                --- PASS: TestIntegration/FsMkdir/FsPutChunked/5.054Mi/5300000 (12.02s)
+                    --- SKIP: TestIntegration/FsMkdir/FsPutChunked/5.054Mi/5300000/Streamed (0.00s)
+                --- PASS: TestIntegration/FsMkdir/FsPutChunked/5.054Mi/10600001 (28.33s)
+                    --- SKIP: TestIntegration/FsMkdir/FsPutChunked/5.054Mi/10600001/Streamed (0.00s)
+            --- PASS: TestIntegration/FsMkdir/FsPutChunked/5.055Mi (58.78s)
+                --- PASS: TestIntegration/FsMkdir/FsPutChunked/5.055Mi/5300052 (23.07s)
+                    --- SKIP: TestIntegration/FsMkdir/FsPutChunked/5.055Mi/5300052/Streamed (0.00s)
+                --- PASS: TestIntegration/FsMkdir/FsPutChunked/5.055Mi/5300053 (12.67s)
+                    --- SKIP: TestIntegration/FsMkdir/FsPutChunked/5.055Mi/5300053/Streamed (0.00s)
+                --- PASS: TestIntegration/FsMkdir/FsPutChunked/5.055Mi/10600107 (23.05s)
+                    --- SKIP: TestIntegration/FsMkdir/FsPutChunked/5.055Mi/10600107/Streamed (0.00s)
+            --- PASS: TestIntegration/FsMkdir/FsPutChunked/6.667Mi (57.76s)
+                --- PASS: TestIntegration/FsMkdir/FsPutChunked/6.667Mi/6990505 (13.00s)
+                    --- SKIP: TestIntegration/FsMkdir/FsPutChunked/6.667Mi/6990505/Streamed (0.00s)
+                --- PASS: TestIntegration/FsMkdir/FsPutChunked/6.667Mi/6990506 (15.36s)
+                    --- SKIP: TestIntegration/FsMkdir/FsPutChunked/6.667Mi/6990506/Streamed (0.00s)
+                --- PASS: TestIntegration/FsMkdir/FsPutChunked/6.667Mi/13981013 (29.39s)
+                    --- SKIP: TestIntegration/FsMkdir/FsPutChunked/6.667Mi/13981013/Streamed (0.00s)
+            --- PASS: TestIntegration/FsMkdir/FsPutChunked/8Mi (58.69s)
+                --- PASS: TestIntegration/FsMkdir/FsPutChunked/8Mi/8388607 (16.55s)
+                    --- SKIP: TestIntegration/FsMkdir/FsPutChunked/8Mi/8388607/Streamed (0.00s)
+                --- PASS: TestIntegration/FsMkdir/FsPutChunked/8Mi/8388608 (13.46s)
+                    --- SKIP: TestIntegration/FsMkdir/FsPutChunked/8Mi/8388608/Streamed (0.00s)
+                --- PASS: TestIntegration/FsMkdir/FsPutChunked/8Mi/16777217 (28.69s)
+                    --- SKIP: TestIntegration/FsMkdir/FsPutChunked/8Mi/16777217/Streamed (0.00s)
+            --- PASS: TestIntegration/FsMkdir/FsPutChunked/10Mi (64.11s)
+                --- PASS: TestIntegration/FsMkdir/FsPutChunked/10Mi/10485759 (22.21s)
+                    --- SKIP: TestIntegration/FsMkdir/FsPutChunked/10Mi/10485759/Streamed (0.00s)
+                --- PASS: TestIntegration/FsMkdir/FsPutChunked/10Mi/10485760 (14.27s)
+                    --- SKIP: TestIntegration/FsMkdir/FsPutChunked/10Mi/10485760/Streamed (0.00s)
+                --- PASS: TestIntegration/FsMkdir/FsPutChunked/10Mi/20971521 (27.63s)
+                    --- SKIP: TestIntegration/FsMkdir/FsPutChunked/10Mi/20971521/Streamed (0.00s)
+        --- SKIP: TestIntegration/FsMkdir/FsCopyChunked (0.00s)
+        --- PASS: TestIntegration/FsMkdir/FsUploadUnknownSize (16.54s)
+            --- PASS: TestIntegration/FsMkdir/FsUploadUnknownSize/FsPutUnknownSize (5.11s)
+            --- PASS: TestIntegration/FsMkdir/FsUploadUnknownSize/FsUpdateUnknownSize (11.42s)
+        --- PASS: TestIntegration/FsMkdir/FsRootCollapse (1.78s)
+        --- SKIP: TestIntegration/FsMkdir/FsDirSetModTime (0.00s)
+        --- SKIP: TestIntegration/FsMkdir/FsMkdirMetadata (0.00s)
+        --- SKIP: TestIntegration/FsMkdir/FsDirectory (0.00s)
+    --- SKIP: TestIntegration/FsShutdown (0.00s)
+PASS
+ok  	github.com/rclone/rclone/backend/folderfort	836.239s

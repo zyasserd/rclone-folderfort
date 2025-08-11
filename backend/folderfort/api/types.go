@@ -148,6 +148,12 @@ type CopyEntriesRequest struct {
 	DestinationID *int  `json:"destinationId"`
 }
 
+// CopyEntriesResponse is the response from duplicating entries
+type CopyEntriesResponse struct {
+	Status  string      `json:"status"`
+	Entries []FileEntry `json:"entries"`
+}
+
 type RestoreEntriesRequest struct {
 	EntryIDs []int `json:"entryIds"`
 }

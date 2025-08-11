@@ -1377,6 +1377,64 @@ func (f *Fs) moveObject(ctx context.Context, src *Object, remote string) (fs.Obj
 	return newObj, nil
 }
 
+// duplicateObject duplicates an object to the specified destination and returns the new object
+func (f *Fs) duplicateObject(ctx context.Context, src *Object, dstParentID *int) (*Object, error) {
+	request := api.CopyEntriesRequest{
+		EntryIDs:      []int{src.id},
+		DestinationID: dstParentID,
+	}
+
+	opts := rest.Opts{
+		Method: "POST",
+		Path:   "/file-entries/duplicate",
+	}
+
+	fs.Debugf(f, "Duplicating object %d to parent %v", src.id, dstParentID)
+
+	var response api.CopyEntriesResponse
+	err := f.pacer.Call(func() (bool, error) {
+		resp, err := f.srv.CallJSON(ctx, &opts, &request, &response)
+		return shouldRetry(ctx, resp, err)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to duplicate object: %w", err)
+	}
+
+	fs.Debugf(f, "Duplication response: %+v", response)
+
+	// The API returns duplicated entries in the "entries" field
+	if len(response.Entries) == 0 {
+		return nil, fmt.Errorf("API response does not contain duplicated entries: %+v", response)
+	}
+
+	// Get the first (and should be only) duplicated entry
+	entry := response.Entries[0]
+
+	// Decode the name for the remote path
+	decodedName := f.restoreMinLength(f.opt.Enc.ToStandardName(entry.Name))
+
+	// For now, we'll use just the decoded name as the remote
+	// In a more complete implementation, we could build the full path
+	// by working backwards from the parent ID
+	remote := decodedName
+
+	duplicatedObject := &Object{
+		fs:          f,
+		remote:      remote,
+		hasMetaData: true,
+		size:        entry.FileSize,
+		modTime:     entry.UpdatedAt,
+		id:          entry.ID,
+		parentID:    entry.ParentID,
+		mimeType:    entry.Mime,
+		hash:        entry.Hash,
+		downloadURL: entry.URL,
+	}
+
+	fs.Debugf(f, "Created duplicated object: %+v", duplicatedObject)
+	return duplicatedObject, nil
+}
+
 // copyObject copies an object using server-side copy
 func (f *Fs) copyObject(ctx context.Context, src *Object, remote string) (fs.Object, error) {
 	// Get destination directory
@@ -1400,82 +1458,50 @@ func (f *Fs) copyObject(ctx context.Context, src *Object, remote string) (fs.Obj
 		}
 	}
 
-	// Copy the object - FolderFort will automatically append " - Copy" to the name
-	request := api.CopyEntriesRequest{
-		EntryIDs:      []int{src.id},
-		DestinationID: dstParentID,
-	}
-
-	opts := rest.Opts{
-		Method: "POST",
-		Path:   "/file-entries/duplicate",
-	}
-
-	fs.Debugf(f, "Copying object %d to parent %v", src.id, dstParentID)
-
-	var response interface{}
-	err = f.pacer.Call(func() (bool, error) {
-		resp, err := f.srv.CallJSON(ctx, &opts, &request, &response)
-		return shouldRetry(ctx, resp, err)
-	})
+	// First, duplicate the object to the destination directory
+	duplicatedObject, err := f.duplicateObject(ctx, src, dstParentID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to copy object: %w", err)
+		return nil, fmt.Errorf("failed to duplicate object: %w", err)
 	}
 
-	// Find the newly created copy - FolderFort appends " - Copy" to the original name
-	srcName := path.Base(src.remote)
-	expectedCopyName := srcName + " - Copy"
-	encodedExpectedCopyName := f.opt.Enc.FromStandardName(f.ensureMinLength(expectedCopyName))
-
-	// List the destination directory to find the copied file
+	// Check if there's already an object at the destination with the same name and remove it
+	// This handles FolderFort's ability to have multiple files with the same name
+	encodedTargetName := f.opt.Enc.FromStandardName(f.ensureMinLength(fileName))
 	entries, err := f.listAll(ctx, dstParentID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to list destination directory after copy: %w", err)
-	}
-
-	var copiedObject *Object
-	for _, entry := range entries {
-		if entry.Name == encodedExpectedCopyName && entry.Type != "folder" {
-			// Found the copied file
-			decodedName := f.restoreMinLength(f.opt.Enc.ToStandardName(entry.Name))
-			copiedRemote := decodedName
-			if dir != "" {
-				copiedRemote = path.Join(dir, decodedName)
+	if err == nil {
+		var filesToDelete []string
+		for _, entry := range entries {
+			if entry.Name == encodedTargetName && entry.Type != "folder" {
+				// Don't delete our own duplicated object
+				if entry.ID != duplicatedObject.id {
+					filesToDelete = append(filesToDelete, strconv.Itoa(entry.ID))
+					fs.Debugf(f, "Found existing file with target name, will delete ID: %d", entry.ID)
+				}
 			}
+		}
 
-			copiedObject = &Object{
-				fs:          f,
-				remote:      copiedRemote,
-				hasMetaData: true,
-				size:        entry.FileSize,
-				modTime:     entry.UpdatedAt,
-				id:          entry.ID,
-				parentID:    entry.ParentID,
-				mimeType:    entry.Mime,
-				hash:        entry.Hash,
-				downloadURL: entry.URL,
+		if len(filesToDelete) > 0 {
+			fs.Debugf(f, "Deleting %d existing files with name '%s'", len(filesToDelete), fileName)
+			err = f.deleteEntry(ctx, filesToDelete, f.opt.HardDelete)
+			if err != nil {
+				fs.Debugf(f, "Failed to delete existing files: %v", err)
+				// Continue anyway
 			}
-			break
 		}
 	}
 
-	if copiedObject == nil {
-		return nil, fmt.Errorf("could not find copied file after duplication")
-	}
-
-	// If the desired filename is different from the auto-generated " - Copy" name, rename it
-	if fileName != expectedCopyName {
-		fs.Debugf(f, "Renaming copied file from '%s' to '%s'", expectedCopyName, fileName)
-
-		encodedFileName := f.opt.Enc.FromStandardName(f.ensureMinLength(fileName))
+	// Check if we need to rename the duplicated object to the desired filename
+	currentName := path.Base(duplicatedObject.remote)
+	if fileName != currentName {
+		fs.Debugf(f, "Renaming duplicated file from '%s' to '%s'", currentName, fileName)
 
 		updateRequest := api.UpdateEntryRequest{
-			Name: encodedFileName,
+			Name: encodedTargetName,
 		}
 
 		updateOpts := rest.Opts{
 			Method: "PUT",
-			Path:   fmt.Sprintf("/file-entries/%d", copiedObject.id),
+			Path:   fmt.Sprintf("/file-entries/%d", duplicatedObject.id),
 		}
 
 		err = f.pacer.Call(func() (bool, error) {
@@ -1483,14 +1509,14 @@ func (f *Fs) copyObject(ctx context.Context, src *Object, remote string) (fs.Obj
 			return shouldRetry(ctx, resp, err)
 		})
 		if err != nil {
-			return nil, fmt.Errorf("failed to rename copied object: %w", err)
+			return nil, fmt.Errorf("failed to rename duplicated object: %w", err)
 		}
 
-		// Update the object with the final name
-		copiedObject.remote = remote
+		// Update the object with the final name and path
+		duplicatedObject.remote = remote
 	}
 
-	return copiedObject, nil
+	return duplicatedObject, nil
 }
 
 // SetUploadChunkSize sets the upload chunk size for testing

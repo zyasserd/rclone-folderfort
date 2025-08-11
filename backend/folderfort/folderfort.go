@@ -385,17 +385,17 @@ func isAlreadyExistsError(err error) bool {
 	if err == nil {
 		return false
 	}
-	
+
 	errStr := strings.ToLower(err.Error())
 	return (strings.Contains(errStr, "422") || strings.Contains(errStr, "unprocessable")) &&
-		   (strings.Contains(errStr, "already exists") || strings.Contains(errStr, "same name"))
+		(strings.Contains(errStr, "already exists") || strings.Contains(errStr, "same name"))
 }
 
 // createOrGetExistingDir robustly creates a directory or gets existing one if it already exists
 // Uses existing entries if provided to avoid duplicate API calls
 func (f *Fs) createOrGetExistingDir(ctx context.Context, encodedName string, parentID *int, existingEntries []api.FileEntry) (*int, error) {
 	const maxRetries = 2
-	
+
 	for attempt := 0; attempt < maxRetries; attempt++ {
 		// Try to create directory
 		newDirID, err := f.createDir(ctx, encodedName, parentID)
@@ -403,14 +403,14 @@ func (f *Fs) createOrGetExistingDir(ctx context.Context, encodedName string, par
 			fs.Debugf(f, "Created directory '%s' with ID %d", encodedName, *newDirID)
 			return newDirID, nil
 		}
-		
+
 		// Check if it's an "already exists" error
 		if !isAlreadyExistsError(err) {
 			return nil, fmt.Errorf("failed to create directory '%s': %w", encodedName, err)
 		}
-		
+
 		fs.Debugf(f, "Directory '%s' already exists (attempt %d), searching for existing directory", encodedName, attempt+1)
-		
+
 		// Use existing entries for first attempt, otherwise re-list
 		var entries []api.FileEntry
 		if attempt == 0 && existingEntries != nil {
@@ -429,7 +429,7 @@ func (f *Fs) createOrGetExistingDir(ctx context.Context, encodedName string, par
 				return nil, fmt.Errorf("failed to list directory contents: %w", listErr)
 			}
 		}
-		
+
 		// Find the existing folder
 		for _, entry := range entries {
 			if entry.Name == encodedName && entry.Type == "folder" {
@@ -437,14 +437,14 @@ func (f *Fs) createOrGetExistingDir(ctx context.Context, encodedName string, par
 				return &entry.ID, nil
 			}
 		}
-		
+
 		// If we still can't find it and have retries left, wait and try again
 		if attempt < maxRetries-1 {
 			fs.Debugf(f, "Could not find existing directory '%s', retrying...", encodedName)
 			time.Sleep(50 * time.Millisecond)
 		}
 	}
-	
+
 	return nil, fmt.Errorf("failed to create or find directory '%s' after %d attempts", encodedName, maxRetries)
 }
 
@@ -903,6 +903,33 @@ func (f *Fs) Mkdir(ctx context.Context, dir string) error {
 	return nil
 }
 
+/*
+# Current Encoding Flow
+- When Creating/Uploading (Standard Name → Backend Name):
+	1. Input: Standard filename (e.g., ".", "ab", "normal_file")
+	2. Padding: Apply ensureMinLength() to meet 3-character minimum
+		- "." → ".  " (dot + 2 spaces)
+		- "ab" → "ab " (ab + 1 space)
+		- "normal_file" → "normal_file" (no change)
+	3. Encoding: Apply rclone's encoder (FromStandardName())
+		- Trailing spaces get encoded: " " → "␠"
+		- ".  " → ".␠␠"
+		- "ab " → "ab␠"
+	4. API: Send encoded name to FolderFort
+
+- When Reading/Listing (Backend Name → Standard Name):
+	1. Input: Encoded name from API (e.g., ".␠␠", "ab␠")
+	2. Decoding: Apply rclone's decoder (ToStandardName())
+		- Encoded spaces get decoded: "␠" → " "
+		- ".␠␠" → ".  "
+		- "ab␠" → "ab "
+	3. Restore: Apply restoreMinLength() to remove padding
+		- Check if name is exactly 3 characters with trailing spaces
+		- ".  " → "." (remove 2 spaces)
+		- "ab " → "ab" (remove 1 space)
+	4. Output: Original standard filename
+
+*/
 // ensureMinLength ensures that the standard name meets FolderFort's minimum length requirement
 func (f *Fs) ensureMinLength(standardName string) string {
 	// Count Unicode runes (characters) not bytes

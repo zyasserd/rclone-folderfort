@@ -380,6 +380,74 @@ func (f *Fs) getParentID(ctx context.Context, dirPath string) (*int, error) {
 	return parentID, nil
 }
 
+// isAlreadyExistsError checks if an error indicates that a folder already exists
+func isAlreadyExistsError(err error) bool {
+	if err == nil {
+		return false
+	}
+	
+	errStr := strings.ToLower(err.Error())
+	return (strings.Contains(errStr, "422") || strings.Contains(errStr, "unprocessable")) &&
+		   (strings.Contains(errStr, "already exists") || strings.Contains(errStr, "same name"))
+}
+
+// createOrGetExistingDir robustly creates a directory or gets existing one if it already exists
+// Uses existing entries if provided to avoid duplicate API calls
+func (f *Fs) createOrGetExistingDir(ctx context.Context, encodedName string, parentID *int, existingEntries []api.FileEntry) (*int, error) {
+	const maxRetries = 2
+	
+	for attempt := 0; attempt < maxRetries; attempt++ {
+		// Try to create directory
+		newDirID, err := f.createDir(ctx, encodedName, parentID)
+		if err == nil {
+			fs.Debugf(f, "Created directory '%s' with ID %d", encodedName, *newDirID)
+			return newDirID, nil
+		}
+		
+		// Check if it's an "already exists" error
+		if !isAlreadyExistsError(err) {
+			return nil, fmt.Errorf("failed to create directory '%s': %w", encodedName, err)
+		}
+		
+		fs.Debugf(f, "Directory '%s' already exists (attempt %d), searching for existing directory", encodedName, attempt+1)
+		
+		// Use existing entries for first attempt, otherwise re-list
+		var entries []api.FileEntry
+		if attempt == 0 && existingEntries != nil {
+			fs.Debugf(f, "Using already-retrieved entries (%d entries)", len(existingEntries))
+			entries = existingEntries
+		} else {
+			fs.Debugf(f, "Re-listing directory contents")
+			var listErr error
+			entries, listErr = f.listAll(ctx, parentID)
+			if listErr != nil {
+				fs.Debugf(f, "Error listing entries for parentID %v: %v", parentID, listErr)
+				if attempt < maxRetries-1 {
+					time.Sleep(50 * time.Millisecond)
+					continue
+				}
+				return nil, fmt.Errorf("failed to list directory contents: %w", listErr)
+			}
+		}
+		
+		// Find the existing folder
+		for _, entry := range entries {
+			if entry.Name == encodedName && entry.Type == "folder" {
+				fs.Debugf(f, "Found existing directory '%s' with ID: %d", encodedName, entry.ID)
+				return &entry.ID, nil
+			}
+		}
+		
+		// If we still can't find it and have retries left, wait and try again
+		if attempt < maxRetries-1 {
+			fs.Debugf(f, "Could not find existing directory '%s', retrying...", encodedName)
+			time.Sleep(50 * time.Millisecond)
+		}
+	}
+	
+	return nil, fmt.Errorf("failed to create or find directory '%s' after %d attempts", encodedName, maxRetries)
+}
+
 // getOrCreateParentID gets the parent folder ID for a given path, creating missing directories
 func (f *Fs) getOrCreateParentID(ctx context.Context, dirPath string) (*int, error) {
 	fs.Debugf(f, "getOrCreateParentID called with dirPath: '%s'", dirPath)
@@ -433,15 +501,13 @@ func (f *Fs) getOrCreateParentID(ctx context.Context, dirPath string) (*int, err
 		}
 
 		if !found {
-			// Create the missing directory
+			// Create the missing directory using robust helper
 			fs.Debugf(f, "Creating missing folder '%s' with parentID: %v", encodedPart, parentID)
-			newParentID, err := f.createDir(ctx, encodedPart, parentID)
+			newParentID, err := f.createOrGetExistingDir(ctx, encodedPart, parentID, entries)
 			if err != nil {
-				fs.Debugf(f, "Failed to create folder '%s': %v", encodedPart, err)
 				return nil, fmt.Errorf("failed to create directory '%s': %w", part, err)
 			}
 			parentID = newParentID
-			fs.Debugf(f, "Successfully created folder '%s' with ID: %d", encodedPart, *parentID)
 		}
 	}
 
@@ -1314,30 +1380,69 @@ func (f *Fs) moveObject(ctx context.Context, src *Object, remote string) (fs.Obj
 		}
 	}
 
-	// Move the object
-	request := api.MoveEntriesRequest{
-		EntryIDs:      []int{src.id},
-		DestinationID: dstParentID,
-	}
-
-	opts := rest.Opts{
-		Method: "POST",
-		Path:   "/file-entries/move",
-	}
-
-	fs.Debugf(f, "Moving object %d to parent %v", src.id, dstParentID)
-
-	err = f.pacer.Call(func() (bool, error) {
-		resp, err := f.srv.CallJSON(ctx, &opts, &request, nil)
-		return shouldRetry(ctx, resp, err)
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to move object: %w", err)
-	}
-
-	// If filename changed, also rename
+	// Check if source and destination locations are the same
 	srcName := path.Base(src.remote)
-	if fileName != srcName {
+	sameLocation := ((src.parentID == nil && dstParentID == nil) ||
+		(src.parentID != nil && dstParentID != nil && *src.parentID == *dstParentID))
+	sameFilename := fileName == srcName
+
+	fs.Debugf(f, "Move analysis: sameLocation=%v, sameFilename=%v", sameLocation, sameFilename)
+
+	// Before checking for early return, delete any existing files with the destination name
+	// in the destination directory (handles FolderFort's duplicate name capability)
+	// This is needed even when sameLocation && sameFilename for copy-over-self scenarios
+	encodedTargetName := f.opt.Enc.FromStandardName(f.ensureMinLength(fileName))
+	entries, err := f.listAll(ctx, dstParentID)
+	if err == nil {
+		var filesToDelete []string
+		for _, entry := range entries {
+			if entry.Name == encodedTargetName && entry.Type != "folder" && entry.ID != src.id {
+				filesToDelete = append(filesToDelete, strconv.Itoa(entry.ID))
+				fs.Debugf(f, "Found existing file with target name, will delete ID: %d", entry.ID)
+			}
+		}
+
+		if len(filesToDelete) > 0 {
+			fs.Debugf(f, "Deleting %d existing files with name '%s'", len(filesToDelete), fileName)
+			err = f.deleteEntry(ctx, filesToDelete, f.opt.HardDelete)
+			if err != nil {
+				fs.Debugf(f, "Failed to delete existing files: %v", err)
+				// Continue anyway
+			}
+		}
+	}
+
+	// If both location and filename are the same, nothing more to do
+	if sameLocation && sameFilename {
+		fs.Debugf(f, "Source and destination are identical, returning original object")
+		return src, nil
+	}
+
+	// Only move if locations are different
+	if !sameLocation {
+		request := api.MoveEntriesRequest{
+			EntryIDs:      []int{src.id},
+			DestinationID: dstParentID,
+		}
+
+		opts := rest.Opts{
+			Method: "POST",
+			Path:   "/file-entries/move",
+		}
+
+		fs.Debugf(f, "Moving object %d to parent %v", src.id, dstParentID)
+
+		err = f.pacer.Call(func() (bool, error) {
+			resp, err := f.srv.CallJSON(ctx, &opts, &request, nil)
+			return shouldRetry(ctx, resp, err)
+		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to move object: %w", err)
+		}
+	}
+
+	// Only rename if filenames are different
+	if !sameFilename {
 		encodedFileName := f.opt.Enc.FromStandardName(f.ensureMinLength(fileName))
 
 		updateRequest := api.UpdateEntryRequest{
@@ -1349,14 +1454,14 @@ func (f *Fs) moveObject(ctx context.Context, src *Object, remote string) (fs.Obj
 			Path:   fmt.Sprintf("/file-entries/%d", src.id),
 		}
 
-		fs.Debugf(f, "Renaming moved object to '%s'", encodedFileName)
+		fs.Debugf(f, "Renaming object to '%s'", encodedFileName)
 
 		err = f.pacer.Call(func() (bool, error) {
 			resp, err := f.srv.CallJSON(ctx, &updateOpts, &updateRequest, nil)
 			return shouldRetry(ctx, resp, err)
 		})
 		if err != nil {
-			return nil, fmt.Errorf("failed to rename moved object: %w", err)
+			return nil, fmt.Errorf("failed to rename object: %w", err)
 		}
 	}
 
@@ -1378,7 +1483,7 @@ func (f *Fs) moveObject(ctx context.Context, src *Object, remote string) (fs.Obj
 }
 
 // duplicateObject duplicates an object to the specified destination and returns the new object
-func (f *Fs) duplicateObject(ctx context.Context, src *Object, dstParentID *int) (*Object, error) {
+func (f *Fs) duplicateObject(ctx context.Context, src *Object, dstParentID *int, targetDir string) (*Object, error) {
 	request := api.CopyEntriesRequest{
 		EntryIDs:      []int{src.id},
 		DestinationID: dstParentID,
@@ -1413,10 +1518,19 @@ func (f *Fs) duplicateObject(ctx context.Context, src *Object, dstParentID *int)
 	// Decode the name for the remote path
 	decodedName := f.restoreMinLength(f.opt.Enc.ToStandardName(entry.Name))
 
-	// For now, we'll use just the decoded name as the remote
-	// In a more complete implementation, we could build the full path
-	// by working backwards from the parent ID
-	remote := decodedName
+	// Build the full remote path properly
+	var remote string
+	// TODO:
+	// targetDir is the absolute directory path, we need the relative path from filesystem root
+	relativeDir := strings.TrimPrefix(targetDir, f.root)
+	relativeDir = strings.TrimPrefix(relativeDir, "/")
+	relativeDir = strings.TrimSuffix(relativeDir, "/")
+
+	if relativeDir == "" {
+		remote = decodedName
+	} else {
+		remote = path.Join(relativeDir, decodedName)
+	}
 
 	duplicatedObject := &Object{
 		fs:          f,
@@ -1438,7 +1552,7 @@ func (f *Fs) duplicateObject(ctx context.Context, src *Object, dstParentID *int)
 // copyObject copies an object using server-side copy
 func (f *Fs) copyObject(ctx context.Context, src *Object, remote string) (fs.Object, error) {
 	// Get destination directory
-	dir, fileName := path.Split(remote)
+	dir, _ := path.Split(remote)
 	dir = strings.TrimSuffix(dir, "/")
 
 	targetDir := dir
@@ -1459,64 +1573,17 @@ func (f *Fs) copyObject(ctx context.Context, src *Object, remote string) (fs.Obj
 	}
 
 	// First, duplicate the object to the destination directory
-	duplicatedObject, err := f.duplicateObject(ctx, src, dstParentID)
+	duplicatedObject, err := f.duplicateObject(ctx, src, dstParentID, targetDir)
 	if err != nil {
 		return nil, fmt.Errorf("failed to duplicate object: %w", err)
 	}
 
-	// Check if there's already an object at the destination with the same name and remove it
-	// This handles FolderFort's ability to have multiple files with the same name
-	encodedTargetName := f.opt.Enc.FromStandardName(f.ensureMinLength(fileName))
-	entries, err := f.listAll(ctx, dstParentID)
-	if err == nil {
-		var filesToDelete []string
-		for _, entry := range entries {
-			if entry.Name == encodedTargetName && entry.Type != "folder" {
-				// Don't delete our own duplicated object
-				if entry.ID != duplicatedObject.id {
-					filesToDelete = append(filesToDelete, strconv.Itoa(entry.ID))
-					fs.Debugf(f, "Found existing file with target name, will delete ID: %d", entry.ID)
-				}
-			}
-		}
-
-		if len(filesToDelete) > 0 {
-			fs.Debugf(f, "Deleting %d existing files with name '%s'", len(filesToDelete), fileName)
-			err = f.deleteEntry(ctx, filesToDelete, f.opt.HardDelete)
-			if err != nil {
-				fs.Debugf(f, "Failed to delete existing files: %v", err)
-				// Continue anyway
-			}
-		}
-	}
-
-	// Check if we need to rename the duplicated object to the desired filename
-	currentName := path.Base(duplicatedObject.remote)
-	if fileName != currentName {
-		fs.Debugf(f, "Renaming duplicated file from '%s' to '%s'", currentName, fileName)
-
-		updateRequest := api.UpdateEntryRequest{
-			Name: encodedTargetName,
-		}
-
-		updateOpts := rest.Opts{
-			Method: "PUT",
-			Path:   fmt.Sprintf("/file-entries/%d", duplicatedObject.id),
-		}
-
-		err = f.pacer.Call(func() (bool, error) {
-			resp, err := f.srv.CallJSON(ctx, &updateOpts, &updateRequest, nil)
-			return shouldRetry(ctx, resp, err)
-		})
-		if err != nil {
-			return nil, fmt.Errorf("failed to rename duplicated object: %w", err)
-		}
-
-		// Update the object with the final name and path
-		duplicatedObject.remote = remote
-	}
-
-	return duplicatedObject, nil
+	// Now use moveObject to handle any renaming and duplicate cleanup
+	// moveObject will handle:
+	// 1. Deleting existing files with the target name
+	// 2. Renaming if needed
+	// 3. Optimizing for same location/name scenarios
+	return f.moveObject(ctx, duplicatedObject, remote)
 }
 
 // SetUploadChunkSize sets the upload chunk size for testing

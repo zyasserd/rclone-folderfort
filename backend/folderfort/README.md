@@ -21,6 +21,7 @@
 - Canceling copy is ineffective
     - Although canceling a copy operation appears to stop it, the process continues running in the background.
 - Deleting non-empty directories fails
+    - it works most of the time, but failed on me a couple of times
     - Attempts to delete directories that contain files or subfolders result in errors.
 
 
